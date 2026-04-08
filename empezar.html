@@ -197,6 +197,18 @@ select{cursor:pointer;padding-right:34px;background-image:url("data:image/svg+xm
 .ok-spinner-wrap.show{display:flex;}
 .ok-spinner{width:28px;height:28px;border-radius:50%;border:3px solid rgba(255,255,255,.15);border-top-color:var(--green);animation:spin .7s linear infinite;}
 .ok-spinner-txt{font-size:11px;color:rgba(255,255,255,.4);font-family:var(--f-title);letter-spacing:.08em;text-transform:uppercase;}
+/* REDIRECT CIRCLE */
+.redirect-circle{position:relative;width:140px;height:140px;margin-bottom:32px;animation:popIn .5s cubic-bezier(.175,.885,.32,1.275) both;}
+.redirect-ring-svg{width:140px;height:140px;transform:rotate(-90deg);}
+.redirect-ring-bg{fill:none;stroke:rgba(255,255,255,.1);stroke-width:6;}
+.redirect-ring-progress{fill:none;stroke:var(--green);stroke-width:6;stroke-linecap:round;stroke-dasharray:327;stroke-dashoffset:0;transition:stroke-dashoffset linear;}
+.redirect-circle-inner{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;}
+.redirect-circle-icon{font-size:28px;line-height:1;animation:pulse-icon 1s ease-in-out infinite;}
+@keyframes pulse-icon{0%,100%{transform:scale(1)}50%{transform:scale(1.15)}}
+.redirect-circle-secs{font-family:var(--f-title);font-size:32px;font-weight:800;color:#fff;line-height:1;}
+.redirect-note{display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);border-radius:50px;padding:10px 18px;margin-top:-8px;animation:fadeUp .4s ease .6s both;}
+.redirect-note-icon{font-size:16px;flex-shrink:0;}
+.redirect-note span:last-child{font-size:12px;color:rgba(255,255,255,.75);font-family:var(--f-title);font-weight:500;}
 /* VALIDATION ERROR SUMMARY */
 .err-summary{background:rgba(229,62,62,.06);border:1.5px solid rgba(229,62,62,.25);border-radius:12px;padding:12px 14px;margin-bottom:16px;display:none;animation:up .2s ease;}
 .err-summary.show{display:flex;gap:9px;align-items:flex-start;}
@@ -296,7 +308,7 @@ select{cursor:pointer;padding-right:34px;background-image:url("data:image/svg+xm
       <div class="broker-name">Balanz</div>
     </div>
     <div class="broker-card" data-broker="iol" onclick="selectBroker(this)">
-      <img class="broker-logo" src="https://inversionesandinas.com/wp-content/uploads/2023/05/iol.svg" alt="IOL" onerror="this.style.display='none';this.nextElementSibling.textContent='IOL'">
+      <img class="broker-logo" src="https://inversionesandinas.com/wp-content/uploads/2023/06/invertir-online.svg" alt="IOL" onerror="this.style.display='none';this.nextElementSibling.textContent='IOL'">
       <div class="broker-name">IOL Invertir Online</div>
     </div>
     <div class="broker-card" data-broker="bmb" onclick="selectBroker(this)">
@@ -304,7 +316,7 @@ select{cursor:pointer;padding-right:34px;background-image:url("data:image/svg+xm
       <div class="broker-name">Bull Market</div>
     </div>
     <div class="broker-card" data-broker="inviu" onclick="selectBroker(this)">
-      <img class="broker-logo" src="https://inversionesandinas.com/wp-content/uploads/2023/05/inviu.svg" alt="Inviu">
+      <img class="broker-logo" src="https://inversionesandinas.com/wp-content/uploads/2023/05/inviu.svg" alt="Inviu" onerror="this.style.display='none'">
       <div class="broker-name">Inviu</div>
     </div>
     <div class="broker-card" data-broker="ppi" onclick="selectBroker(this)" style="grid-column:1/-1;max-width:200px;margin:0 auto;width:100%">
@@ -421,14 +433,24 @@ select{cursor:pointer;padding-right:34px;background-image:url("data:image/svg+xm
 <div class="ok" id="okA">
   <div class="ok-ring"></div><div class="ok-ring"></div>
   <div class="ok-inner">
-    <div class="ok-check"><svg class="ok-check-svg" viewBox="0 0 40 40"><polyline class="ok-check-path" points="8,21 17,30 33,13"/></svg></div>
-    <h2 class="ok-title">Último paso:<br>completá en <span id="okBrokerName">Balanz</span></h2>
-    <p class="ok-sub">Tu solicitud está registrada. Ahora te redirigimos a <span id="okBrokerName2">Balanz</span> para finalizar la apertura de tu cuenta.</p>
-    <div class="ok-bar-wrap">
-      <div class="ok-bar-top"><span class="ok-bar-lbl">Abriendo el broker para finalizar</span><span class="ok-bar-secs" id="secsA">5</span></div>
-      <div class="ok-track"><div class="ok-fill" id="fillA"></div></div>
+    <!-- Círculo grande giratorio con ícono -->
+    <div class="redirect-circle" id="redirectCircleA">
+      <svg class="redirect-ring-svg" viewBox="0 0 120 120">
+        <circle class="redirect-ring-bg" cx="60" cy="60" r="52" />
+        <circle class="redirect-ring-progress" cx="60" cy="60" r="52" id="ringProgressA"/>
+      </svg>
+      <div class="redirect-circle-inner">
+        <span class="redirect-circle-icon">↗</span>
+        <span class="redirect-circle-secs" id="secsA">5</span>
+      </div>
     </div>
-    <div class="ok-spinner-wrap" id="spinA"><div class="ok-spinner"></div><div class="ok-spinner-txt">Cargando…</div></div>
+    <h2 class="ok-title">Te estamos<br>redirigiendo a <span id="okBrokerName">Balanz</span></h2>
+    <p class="ok-sub">Vas a salir de este sitio y abrirse <strong id="okBrokerName2">Balanz</strong> para que finalices la apertura de tu cuenta ahí.</p>
+    <div class="redirect-note">
+      <span class="redirect-note-icon">🔗</span>
+      <span>Se abrirá una nueva pestaña con el sitio del broker</span>
+    </div>
+    <div class="ok-spinner-wrap" id="spinA"><div class="ok-spinner"></div><div class="ok-spinner-txt">Abriendo…</div></div>
   </div>
 </div>
 
@@ -561,11 +583,10 @@ select{cursor:pointer;padding-right:34px;background-image:url("data:image/svg+xm
     <div class="ok-check"><svg class="ok-check-svg" viewBox="0 0 40 40"><polyline class="ok-check-path" points="8,21 17,30 33,13"/></svg></div>
     <h2 class="ok-title">¡Solicitud enviada!</h2>
     <p class="ok-sub">Recibimos tu solicitud de cambio de asesor. Nuestro equipo la gestiona y te avisa por WhatsApp cuando esté confirmado.</p>
-    <div class="ok-bar-wrap">
-      <div class="ok-bar-top"><span class="ok-bar-lbl">Procesando solicitud</span><span class="ok-bar-secs" id="secsB">5</span></div>
-      <div class="ok-track"><div class="ok-fill" id="fillB"></div></div>
+    <div class="redirect-note" style="background:rgba(33,226,171,.12);border-color:rgba(33,226,171,.3);">
+      <span class="redirect-note-icon">✅</span>
+      <span>No necesitás hacer nada más. Te contactamos pronto.</span>
     </div>
-    <div class="ok-spinner-wrap" id="spinB"><div class="ok-spinner"></div><div class="ok-spinner-txt">Finalizando…</div></div>
   </div>
 </div>
 
@@ -885,29 +906,36 @@ function togTC(w) {
 
 // ── COUNTDOWN ─────────────────────────────────────────────────────
 function startCountdown(okId) {
-  const isA=okId==='okA';
-  const secsEl=document.getElementById(isA?'secsA':'secsB');
-  const fillEl=document.getElementById(isA?'fillA':'fillB');
-  const spinEl=document.getElementById(isA?'spinA':'spinB');
-  let rem=SECS;
-  fillEl.style.transition=`width ${SECS}s linear`;
-  requestAnimationFrame(()=>{fillEl.style.width='0%';});
-  const t=setInterval(()=>{
+  const isA = okId === 'okA';
+  const secsEl = document.getElementById(isA ? 'secsA' : 'secsB');
+  const spinEl = document.getElementById(isA ? 'spinA' : 'spinB');
+  // SVG ring para flujo A
+  const ringEl = isA ? document.getElementById('ringProgressA') : null;
+  const CIRCUMFERENCE = 327; // 2 * PI * 52
+  if (ringEl) {
+    ringEl.style.transition = 'stroke-dashoffset ' + SECS + 's linear';
+    requestAnimationFrame(() => { ringEl.style.strokeDashoffset = CIRCUMFERENCE; });
+  }
+  let rem = SECS;
+  // Usar setTimeout encadenado en lugar de setInterval para mayor fiabilidad
+  function tick() {
     rem--;
-    secsEl.textContent=rem;
-    if(rem<=0){
-      clearInterval(t);
-      spinEl.classList.add('show');
-      setTimeout(()=>{
-        if(isA){
-          const url=(BROKER_URLS[broker]||BROKER_URLS.balanz)[tipo]||BROKER_URLS.balanz.persona;
-          window.open(url,'_blank');
+    if (secsEl) secsEl.textContent = rem > 0 ? rem : '↗';
+    if (rem <= 0) {
+      if (spinEl) spinEl.classList.add('show');
+      setTimeout(() => {
+        if (isA) {
+          const url = (BROKER_URLS[broker] || BROKER_URLS.balanz)[tipo] || BROKER_URLS.balanz.persona;
+          window.open(url, '_blank');
         } else {
-          window.location.href=REDIRECT_VINCULAR;
+          window.location.href = REDIRECT_VINCULAR;
         }
-      },600);
+      }, 800);
+      return;
     }
-  },1000);
+    setTimeout(tick, 1000);
+  }
+  setTimeout(tick, 1000);
 }
 
 // ── MISC ──────────────────────────────────────────────────────────
