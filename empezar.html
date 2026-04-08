@@ -4,680 +4,490 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Empezar — Inversiones Andinas</title>
-<meta name="description" content="Abrí tu cuenta o vinculá tu broker existente. Sin costo, sin comisiones ocultas.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
-<!-- Google Identity Services -->
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
-  :root {
-    --blue:        #073AAB;
-    --blue-dark:   #05297A;
-    --blue-bright: #2465F6;
-    --green:       #21E2AB;
-    --green-mid:   #18B488;
-    --green-dark:  #128766;
-    --grey:        #8C8C8C;
-    --dark:        #262626;
-    --hover:       #537FC8;
-    --f-title: 'Poppins', sans-serif;
-    --f-body:  'Roboto', sans-serif;
-    --r-btn:   100px;
-    --r-card:  16px;
-    --r-input: 6px;
-  }
-  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
-  html, body { min-height:100vh; background:#f4f5f9; font-family:var(--f-body); color:var(--dark); -webkit-font-smoothing:antialiased; }
-
-  /* ── SHELL ── */
-  .shell {
-    max-width: 460px;
-    margin: 0 auto;
-    min-height: 100vh;
-    background: #fff;
-    display: flex;
-    flex-direction: column;
-    box-shadow: 0 0 80px rgba(7,58,171,.08);
-    position: relative;
-  }
-
-  /* ── TOPBAR ── */
-  .topbar {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 18px 22px 14px;
-    border-bottom: 1px solid rgba(7,58,171,.07);
-    position: sticky; top:0; z-index:50; background:#fff;
-  }
-  .logo { height:28px; }
-  .close-btn {
-    width:34px; height:34px; border-radius:50%;
-    background:rgba(7,58,171,.06); border:none;
-    display:flex; align-items:center; justify-content:center;
-    font-size:15px; color:var(--blue); cursor:pointer;
-    transition:background .2s;
-  }
-  .close-btn:hover { background:rgba(7,58,171,.12); }
-
-  /* ── SCENES ── */
-  .scene { display:none; flex-direction:column; flex:1; padding:22px 22px 130px; }
-  .scene.active { display:flex; animation:up .28s ease; }
-  @keyframes up { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
-
-  /* ── HEADER ── */
-  .eyebrow {
-    font-size:10px; font-weight:600; letter-spacing:.14em;
-    text-transform:uppercase; color:var(--green-mid);
-    display:flex; align-items:center; gap:6px; margin-bottom:6px;
-  }
-  .eyebrow::before { content:'✦'; font-size:9px; }
-  h1 {
-    font-family:var(--f-title); font-weight:700; font-size:27px;
-    letter-spacing:-.02em; line-height:1.13; color:var(--blue); margin-bottom:8px;
-  }
-  h1 em { font-style:normal; color:var(--blue-bright); }
-  .lead { font-size:14px; color:var(--grey); line-height:1.55; margin-bottom:0; }
-  .wave {
-    width:100%; height:10px; margin:14px 0 20px;
-    fill:none; stroke:var(--green); stroke-width:1.5; opacity:.5;
-  }
-
-  /* ── PROGRESS ── */
-  .prog { margin-bottom:18px; }
-  .prog-track { height:3px; background:rgba(7,58,171,.08); border-radius:2px; overflow:hidden; margin-bottom:5px; }
-  .prog-fill { height:100%; background:linear-gradient(90deg,var(--blue),var(--blue-bright)); border-radius:2px; transition:width .4s ease; }
-  .prog-lbl { display:flex; justify-content:space-between; font-size:11px; color:var(--grey); }
-  .prog-lbl strong { color:var(--blue); font-weight:500; }
-
-  /* ── STEP DOTS ── */
-  .dots { display:flex; align-items:center; margin-bottom:20px; }
-  .dot-item { flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; position:relative; }
-  .dot-item:not(:last-child)::after { content:''; position:absolute; top:13px; left:55%; width:90%; height:1px; background:rgba(7,58,171,.1); z-index:0; }
-  .dot-item.done:not(:last-child)::after { background:rgba(7,58,171,.25); }
-  .dot {
-    width:27px; height:27px; border-radius:50%;
-    background:rgba(7,58,171,.05); border:1.5px solid rgba(7,58,171,.12);
-    display:flex; align-items:center; justify-content:center;
-    font-size:11px; font-weight:600; color:var(--grey);
-    font-family:var(--f-title); position:relative; z-index:1; transition:all .3s;
-  }
-  .dot-item.active .dot { background:var(--blue); border-color:var(--blue); color:#fff; box-shadow:0 4px 14px rgba(7,58,171,.28); }
-  .dot-item.done .dot { background:rgba(33,226,171,.13); border-color:var(--green-mid); color:var(--green-dark); }
-  .dot-lbl { font-size:9px; font-weight:500; letter-spacing:.06em; text-transform:uppercase; color:rgba(140,140,140,.6); }
-  .dot-item.active .dot-lbl { color:var(--blue); }
-  .dot-item.done .dot-lbl { color:var(--green-dark); }
-
-  /* ── BIG CHOICE CARDS (Scene 0) ── */
-  .big-cards { display:flex; flex-direction:column; gap:12px; margin-top:4px; }
-  .big-card {
-    border:1.5px solid rgba(7,58,171,.13); border-radius:20px;
-    padding:20px 18px; cursor:pointer; transition:all .22s;
-    display:flex; align-items:flex-start; gap:14px;
-    background:#fff; position:relative; overflow:hidden;
-  }
-  .big-card::before {
-    content:''; position:absolute; inset:0;
-    background:linear-gradient(135deg,rgba(7,58,171,.03),transparent);
-    opacity:0; transition:opacity .22s;
-  }
-  .big-card:hover { border-color:var(--blue); transform:translateY(-2px); box-shadow:0 8px 28px rgba(7,58,171,.1); }
-  .big-card:hover::before { opacity:1; }
-  .big-card.green { border-color:rgba(33,226,171,.25); }
-  .big-card.green:hover { border-color:var(--green-mid); box-shadow:0 8px 28px rgba(33,226,171,.15); }
-  .big-card.green::before { background:linear-gradient(135deg,rgba(33,226,171,.05),transparent); }
-
-  .bc-icon {
-    width:52px; height:52px; border-radius:14px; flex-shrink:0;
-    display:flex; align-items:center; justify-content:center; font-size:22px;
-    background:rgba(7,58,171,.07);
-  }
-  .big-card.green .bc-icon { background:rgba(33,226,171,.12); }
-  .bc-body { flex:1; }
-  .bc-title { font-family:var(--f-title); font-size:16px; font-weight:700; color:var(--blue); margin-bottom:4px; }
-  .big-card.green .bc-title { color:var(--green-dark); }
-  .bc-desc { font-size:13px; color:var(--grey); line-height:1.45; }
-  .bc-tag {
-    display:inline-block; margin-top:8px;
-    font-size:10px; font-weight:600; letter-spacing:.06em;
-    border-radius:50px; padding:3px 10px;
-    background:rgba(7,58,171,.07); color:var(--blue);
-  }
-  .big-card.green .bc-tag { background:rgba(33,226,171,.12); color:var(--green-dark); }
-  .bc-arrow {
-    font-size:18px; color:rgba(7,58,171,.25); align-self:center;
-    transition:transform .2s, color .2s;
-  }
-  .big-card:hover .bc-arrow { color:var(--blue); transform:translateX(3px); }
-  .big-card.green:hover .bc-arrow { color:var(--green-mid); }
-
-  /* ── SMALL CARD SELECT ── */
-  .card-set { display:flex; flex-direction:column; gap:8px; }
-  .c-card {
-    border:1.5px solid rgba(7,58,171,.12); border-radius:var(--r-card);
-    padding:12px 14px; display:flex; align-items:center; gap:11px;
-    cursor:pointer; transition:all .2s; background:#fff;
-  }
-  .c-card:hover { border-color:rgba(7,58,171,.3); }
-  .c-card.sel { border-color:var(--blue); background:rgba(7,58,171,.035); }
-  .c-card input[type=radio] { display:none; }
-  .c-radio {
-    width:20px; height:20px; border-radius:50%;
-    border:2px solid rgba(7,58,171,.22); flex-shrink:0;
-    display:flex; align-items:center; justify-content:center; transition:all .2s;
-  }
-  .c-card.sel .c-radio { border-color:var(--blue); background:var(--blue); }
-  .c-card.sel .c-radio::after { content:''; width:8px; height:8px; border-radius:50%; background:#fff; }
-  .c-ico { width:40px; height:40px; border-radius:11px; background:rgba(7,58,171,.07); display:flex; align-items:center; justify-content:center; font-size:17px; flex-shrink:0; }
-  .c-card.green .c-ico { background:rgba(33,226,171,.11); }
-  .c-card.purple .c-ico { background:rgba(36,101,246,.1); }
-  .c-name { font-family:var(--f-title); font-size:13px; font-weight:600; color:var(--blue); margin-bottom:2px; }
-  .c-desc { font-size:12px; color:var(--grey); line-height:1.3; }
-
-  /* ── FIELDS ── */
-  .fg { margin-bottom:12px; }
-  .fr { display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
-  .fr .fg { margin-bottom:0; }
-  label.lbl {
-    display:block; font-size:10px; font-weight:600;
-    letter-spacing:.1em; text-transform:uppercase;
-    color:var(--blue); margin-bottom:6px;
-  }
-  input, select, textarea {
-    width:100%; background:#fff;
-    border:1.5px solid rgba(7,58,171,.15);
-    border-radius:var(--r-input);
-    padding:13px 14px;
-    font-family:var(--f-body); font-size:14px; font-weight:400;
-    color:var(--dark); outline:none;
-    transition:border-color .2s, box-shadow .2s;
-    -webkit-appearance:none; appearance:none;
-  }
-  input::placeholder, textarea::placeholder { color:rgba(140,140,140,.4); font-weight:300; }
-  input:focus, select:focus, textarea:focus { border-color:var(--blue-bright); box-shadow:0 0 0 3px rgba(36,101,246,.09); }
-  .iw { position:relative; }
-  .ii { position:absolute; right:12px; top:50%; transform:translateY(-50%); font-size:13px; color:var(--grey); pointer-events:none; }
-  .iw input { padding-right:36px; }
-  select { cursor:pointer; padding-right:34px; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23073AAB' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 13px center; }
-  .hint { font-size:11px; color:var(--grey); margin-top:4px; font-weight:300; }
-  .ph { display:flex; gap:8px; }
-  .ph-pre { width:82px; flex-shrink:0; }
-
-  /* ── GOOGLE LOGIN BLOCK ── */
-  .g-login-block {
-    background: linear-gradient(135deg, rgba(7,58,171,.03) 0%, rgba(33,226,171,.04) 100%);
-    border: 1.5px solid rgba(7,58,171,.12);
-    border-radius: 16px;
-    padding: 18px 16px;
-    margin-bottom: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 10px;
-    transition: border-color .2s;
-  }
-  .g-login-block:hover { border-color: rgba(7,58,171,.22); }
-  .g-login-title {
-    font-family: var(--f-title); font-size: 13px; font-weight: 600;
-    color: var(--blue); text-align: center; margin-bottom: 2px;
-  }
-  .g-login-sub {
-    font-size: 11px; color: var(--grey); text-align: center; line-height: 1.5;
-  }
-  /* Google button custom style */
-  .g-btn {
-    display: flex; align-items: center; justify-content: center; gap: 10px;
-    width: 100%; padding: 12px 18px;
-    background: #fff;
-    border: 1.5px solid rgba(7,58,171,.18);
-    border-radius: 50px;
-    cursor: pointer;
-    font-family: var(--f-title); font-size: 13px; font-weight: 600;
-    color: var(--dark);
-    transition: all .2s;
-    box-shadow: 0 2px 8px rgba(0,0,0,.06);
-    text-decoration: none;
-  }
-  .g-btn:hover { border-color: var(--blue); box-shadow: 0 4px 16px rgba(7,58,171,.12); transform: translateY(-1px); }
-  .g-btn svg { width: 18px; height: 18px; flex-shrink: 0; }
-
-  /* Divider OR */
-  .or-divider {
-    display: flex; align-items: center; gap: 10px;
-    margin: 4px 0 16px;
-    font-size: 10px; font-weight: 600; letter-spacing: .12em;
-    text-transform: uppercase; color: var(--grey);
-  }
-  .or-divider::before, .or-divider::after {
-    content: ''; flex: 1; height: 1px; background: rgba(7,58,171,.09);
-  }
-
-  /* ── VERIFIED BADGE ── */
-  .verified-row {
-    display: none;
-    background: rgba(33,226,171,.07);
-    border: 1.5px solid rgba(33,226,171,.3);
-    border-radius: 12px;
-    padding: 12px 14px;
-    margin-bottom: 20px;
-    gap: 10px;
-    align-items: center;
-    animation: up .3s ease;
-  }
-  .verified-row.show { display: flex; }
-  .v-avatar {
-    width: 40px; height: 40px; border-radius: 50%;
-    background: rgba(33,226,171,.15);
-    border: 2px solid rgba(33,226,171,.4);
-    display: flex; align-items: center; justify-content: center;
-    font-size: 18px; flex-shrink: 0; overflow: hidden;
-  }
-  .v-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
-  .v-info { flex: 1; min-width: 0; }
-  .v-name { font-family: var(--f-title); font-size: 14px; font-weight: 600; color: var(--blue); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .v-email { font-size: 11px; color: var(--grey); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-  .v-badge {
-    display: flex; align-items: center; gap: 4px;
-    font-size: 9px; font-weight: 700; letter-spacing: .08em;
-    text-transform: uppercase; color: var(--green-dark);
-    background: rgba(33,226,171,.13); border-radius: 50px;
-    padding: 3px 8px; flex-shrink: 0;
-  }
-  .v-badge::before { content: '✓'; }
-  .v-change {
-    font-size: 10px; color: rgba(7,58,171,.5); cursor: pointer;
-    text-decoration: underline; text-underline-offset: 2px;
-    margin-top: 2px; display: block; background: none; border: none;
-    font-family: var(--f-body); padding: 0;
-  }
-  .v-change:hover { color: var(--blue); }
-
-  /* Pre-filled field style */
-  input.prefilled {
-    background: rgba(33,226,171,.05);
-    border-color: rgba(33,226,171,.35);
-    color: var(--dark);
-  }
-  input.prefilled:focus { border-color: var(--green-mid); box-shadow: 0 0 0 3px rgba(33,226,171,.1); }
-
-  /* ── INFO BOX ── */
-  .info {
-    background:rgba(33,226,171,.06); border:1.5px solid rgba(33,226,171,.28);
-    border-radius:12px; padding:12px 14px;
-    display:flex; gap:9px; align-items:flex-start; margin-bottom:16px;
-  }
-  .info-i { font-size:14px; flex-shrink:0; margin-top:1px; }
-  .info-t { font-size:13px; color:#555; line-height:1.5; }
-  .info-t strong { color:var(--green-dark); font-weight:600; }
-
-  /* ── DIVIDER ── */
-  .divider {
-    font-size:10px; font-weight:600; letter-spacing:.14em;
-    text-transform:uppercase; color:var(--blue);
-    margin:16px 0 10px; display:flex; align-items:center; gap:9px;
-  }
-  .divider::after { content:''; flex:1; height:1px; background:rgba(7,58,171,.09); }
-
-  /* ── TOGGLE ── */
-  .tc-link {
-    color: var(--blue-bright);
-    text-decoration: underline;
-    text-underline-offset: 2px;
-  }
-  .tc-link:hover { color: var(--blue); }
-  .tog-row {
-    display:flex; align-items:flex-start; gap:12px;
-    padding:13px 14px; background:rgba(7,58,171,.025);
-    border:1.5px solid rgba(7,58,171,.09); border-radius:12px;
-    margin-bottom:9px; cursor:pointer; transition:border-color .2s;
-  }
-  .tog-row:hover { border-color:rgba(7,58,171,.18); }
-  .tog {
-    width:44px; height:24px; border-radius:12px;
-    background:rgba(140,140,140,.2); flex-shrink:0; position:relative;
-    transition:all .25s; margin-top:2px;
-  }
-  .tog::after { content:''; position:absolute; left:3px; top:3px; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.14); transition:left .25s; }
-  .tog.on { background:var(--blue); }
-  .tog.on::after { left:23px; }
-  .tog-lbl { font-size:13px; color:var(--grey); line-height:1.5; flex:1; }
-  .tog-lbl strong { display:block; color:var(--dark); font-weight:500; font-family:var(--f-title); font-size:13px; margin-bottom:2px; }
-
-  /* BLOCKED STATE */
-  .bl-spinner-wrap {
-    display: flex; flex-direction: column; align-items: center;
-    padding: 32px 0 24px; gap: 14px;
-  }
-  .bl-spinner {
-    width: 40px; height: 40px; border-radius: 50%;
-    border: 3px solid rgba(7,58,171,.12);
-    border-top-color: var(--blue);
-    animation: spin .8s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .bl-spinner-txt {
-    font-family: var(--f-title); font-size: 13px; font-weight: 500;
-    color: var(--grey); letter-spacing: .01em;
-  }
-  .bl-msg {
-    display: flex; flex-direction: column; align-items: center;
-    text-align: center; padding: 8px 0 4px;
-    animation: up .35s ease;
-  }
-  .bl-icon { font-size: 36px; margin-bottom: 14px; }
-  .bl-title {
-    font-family: var(--f-title); font-weight: 700; font-size: 17px;
-    color: var(--blue); letter-spacing: -.01em;
-    margin-bottom: 12px; line-height: 1.25;
-  }
-  .bl-msg p {
-    font-size: 13px; color: var(--grey); line-height: 1.6;
-    margin-bottom: 8px; max-width: 300px;
-  }
-  .bl-btn-primary {
-    margin-top: 16px; width: 100%;
-    background: var(--blue); color: #fff;
-    border: none; border-radius: var(--r-btn);
-    padding: 14px 24px; font-family: var(--f-title);
-    font-size: 14px; font-weight: 600; cursor: pointer;
-    box-shadow: 0 4px 18px rgba(7,58,171,.22);
-    transition: background .2s;
-  }
-  .bl-btn-primary:hover { background: var(--hover); }
-  .bl-btn-ghost {
-    margin-top: 10px; width: 100%;
-    background: transparent; color: var(--grey);
-    border: none; padding: 10px;
-    font-family: var(--f-body); font-size: 13px;
-    cursor: pointer; transition: color .2s;
-  }
-  .bl-btn-ghost:hover { color: var(--blue); }
-
-  .broker-warning p {
-    font-size: 13px; color: #555; line-height: 1.55; margin-bottom: 6px;
-  }
-  .broker-warning p:last-of-type { margin-bottom: 0; }
-
-  /* COUNTDOWN REDIRECT */
-  .redirect-bar {
-    margin-top: 28px; width: 100%;
-    background: rgba(7,58,171,.04);
-    border: 1.5px solid rgba(7,58,171,.1);
-    border-radius: 12px;
-    padding: 14px 16px;
-    display: flex; align-items: center; gap: 12px;
-  }
-  .redirect-num {
-    width: 36px; height: 36px; border-radius: 50%;
-    background: var(--blue); color: #fff;
-    display: flex; align-items: center; justify-content: center;
-    font-family: var(--f-title); font-size: 15px; font-weight: 700;
-    flex-shrink: 0;
-  }
-  .redirect-txt { font-size: 13px; color: var(--grey); line-height: 1.4; flex: 1; }
-  .redirect-txt strong { color: var(--blue); font-weight: 600; display: block; margin-bottom: 1px; font-family: var(--f-title); font-size: 13px; }
-  .redirect-progress {
-    height: 3px; background: rgba(7,58,171,.1);
-    border-radius: 2px; margin-top: 10px; overflow: hidden;
-  }
-  .redirect-progress-fill {
-    height: 100%; width: 100%;
-    background: linear-gradient(90deg, var(--blue), var(--blue-bright));
-    border-radius: 2px;
-    transition: width linear;
-  }
-
-  .btn:disabled {
-    background: rgba(7,58,171,.25);
-    box-shadow: none;
-    cursor: not-allowed;
-    transform: none;
-  }
-
-  /* ── TRANSITION SCREEN ── */
-  .ok {
-    display: none; flex-direction: column; align-items: center;
-    justify-content: center; text-align: center;
-    padding: 0; flex: 1; min-height: 100vh;
-    background: linear-gradient(160deg, #05297A 0%, #073AAB 50%, #1a4fc2 100%);
-    position: relative; overflow: hidden;
-  }
-  .ok.show { display: flex; }
-
-  /* Partículas de fondo */
-  .ok::before {
-    content: '';
-    position: absolute; inset: 0;
-    background:
-      radial-gradient(circle at 20% 20%, rgba(33,226,171,.12) 0%, transparent 50%),
-      radial-gradient(circle at 80% 80%, rgba(36,101,246,.2) 0%, transparent 50%);
-    pointer-events: none;
-  }
-
-  .ok-inner {
-    position: relative; z-index: 1;
-    display: flex; flex-direction: column; align-items: center;
-    padding: 40px 32px; width: 100%;
-  }
-
-  /* Checkmark animado */
-  .ok-check-wrap {
-    width: 88px; height: 88px; border-radius: 50%;
-    background: rgba(33,226,171,.15);
-    border: 2px solid rgba(33,226,171,.4);
-    display: flex; align-items: center; justify-content: center;
-    margin-bottom: 28px;
-    animation: popIn .5s cubic-bezier(.175,.885,.32,1.275) forwards;
-  }
-  @keyframes popIn { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
-  .ok-check-svg { width: 40px; height: 40px; }
-  .ok-check-path {
-    stroke: #21E2AB; stroke-width: 3; fill: none;
-    stroke-dasharray: 60; stroke-dashoffset: 60;
-    stroke-linecap: round; stroke-linejoin: round;
-    animation: drawCheck .4s ease .5s forwards;
-  }
-  @keyframes drawCheck { to { stroke-dashoffset: 0; } }
-
-  .ok-title {
-    font-family: var(--f-title); font-weight: 700; font-size: 22px;
-    color: #fff; letter-spacing: -.02em; margin-bottom: 8px;
-    animation: fadeUp .4s ease .3s both;
-  }
-  .ok-sub {
-    font-size: 13px; color: rgba(255,255,255,.65); line-height: 1.6;
-    max-width: 260px; margin-bottom: 48px;
-    animation: fadeUp .4s ease .4s both;
-  }
-  @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
-
-  /* Barra de progreso de redirect */
-  .ok-progress-wrap {
-    width: 100%; max-width: 280px;
-    animation: fadeUp .4s ease .5s both;
-  }
-  .ok-progress-label {
-    display: flex; justify-content: space-between; align-items: center;
-    margin-bottom: 8px;
-  }
-  .ok-progress-txt {
-    font-size: 11px; font-weight: 600; letter-spacing: .08em;
-    text-transform: uppercase; color: rgba(255,255,255,.5);
-    font-family: var(--f-title);
-  }
-  .ok-progress-secs {
-    font-size: 13px; font-weight: 700; color: var(--green);
-    font-family: var(--f-title);
-  }
-  .ok-bar-track {
-    height: 4px; background: rgba(255,255,255,.1);
-    border-radius: 4px; overflow: hidden;
-  }
-  .ok-bar-fill {
-    height: 100%; width: 100%;
-    background: linear-gradient(90deg, var(--green-mid), var(--green));
-    border-radius: 4px; transition: width linear;
-  }
-
-  /* Spinner que reemplaza la barra cuando queda en 0 */
-  .ok-spinner-wrap {
-    display: none; flex-direction: column; align-items: center;
-    gap: 12px; margin-top: 8px;
-  }
-  .ok-spinner-wrap.show { display: flex; }
-  .ok-spinner {
-    width: 32px; height: 32px; border-radius: 50%;
-    border: 3px solid rgba(255,255,255,.15);
-    border-top-color: var(--green);
-    animation: spin .7s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
-  .ok-spinner-txt {
-    font-size: 11px; color: rgba(255,255,255,.5);
-    font-family: var(--f-title); letter-spacing: .06em;
-    text-transform: uppercase;
-  }
-
-  /* ── BOTTOM CTA ── */
-  .cta {
-    position:fixed; bottom:0; left:50%; transform:translateX(-50%);
-    width:100%; max-width:460px;
-    padding:12px 22px 26px;
-    background:linear-gradient(to top,#fff 60%,rgba(255,255,255,0));
-    z-index:50;
-  }
-  .btn {
-    width:100%; background:var(--blue); color:#fff;
-    border:none; border-radius:var(--r-btn); padding:16px 28px;
-    font-family:var(--f-title); font-size:14px; font-weight:600;
-    cursor:pointer; transition:all .2s;
-    display:flex; align-items:center; justify-content:center; gap:8px;
-    letter-spacing:.02em; box-shadow:0 4px 18px rgba(7,58,171,.22);
-  }
-  .btn:hover { background:var(--hover); transform:translateY(-1px); box-shadow:0 7px 26px rgba(7,58,171,.28); }
-  .btn:active { transform:scale(.98); }
-  .btn .arr { transition:transform .2s; }
-  .btn:hover .arr { transform:translateX(3px); }
-  .btn-back {
-    width:100%; background:transparent; color:var(--grey);
-    border:none; padding:8px; font-family:var(--f-body); font-size:13px;
-    cursor:pointer; margin-top:6px; text-align:center; transition:color .2s;
-  }
-  .btn-back:hover { color:var(--blue); }
+:root{--blue:#073AAB;--blue-dark:#05297A;--blue-bright:#2465F6;--green:#21E2AB;--green-mid:#18B488;--green-dark:#128766;--grey:#8C8C8C;--dark:#262626;--hover:#537FC8;--red:#E53E3E;--f-title:'Poppins',sans-serif;--f-body:'Roboto',sans-serif;--r-btn:100px;--r-card:16px;--r-input:6px;}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html,body{min-height:100vh;background:#f4f5f9;font-family:var(--f-body);color:var(--dark);-webkit-font-smoothing:antialiased;}
+.shell{max-width:460px;margin:0 auto;min-height:100vh;background:#fff;display:flex;flex-direction:column;box-shadow:0 0 80px rgba(7,58,171,.08);}
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:18px 22px 14px;border-bottom:1px solid rgba(7,58,171,.07);position:sticky;top:0;z-index:50;background:#fff;}
+.logo{height:28px;}
+.close-btn{width:34px;height:34px;border-radius:50%;background:rgba(7,58,171,.06);border:none;display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--blue);cursor:pointer;}
+.scene{display:none;flex-direction:column;flex:1;padding:22px 22px 130px;}
+.scene.active{display:flex;animation:up .28s ease;}
+@keyframes up{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.eyebrow{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--green-mid);display:flex;align-items:center;gap:6px;margin-bottom:6px;}
+.eyebrow::before{content:'✦';font-size:9px;}
+h1{font-family:var(--f-title);font-weight:700;font-size:27px;letter-spacing:-.02em;line-height:1.13;color:var(--blue);margin-bottom:8px;}
+h1 em{font-style:normal;color:var(--blue-bright);}
+.lead{font-size:14px;color:var(--grey);line-height:1.55;}
+.wave{width:100%;height:10px;margin:14px 0 20px;fill:none;stroke:var(--green);stroke-width:1.5;opacity:.5;}
+/* PROGRESS */
+.prog{margin-bottom:16px;}
+.prog-track{height:3px;background:rgba(7,58,171,.08);border-radius:2px;overflow:hidden;margin-bottom:5px;}
+.prog-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--blue-bright));border-radius:2px;transition:width .4s ease;}
+.prog-lbl{display:flex;justify-content:space-between;font-size:11px;color:var(--grey);}
+.prog-lbl strong{color:var(--blue);font-weight:500;}
+/* DOTS */
+.dots{display:flex;align-items:center;margin-bottom:20px;}
+.dot-item{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;position:relative;}
+.dot-item:not(:last-child)::after{content:'';position:absolute;top:13px;left:55%;width:90%;height:1px;background:rgba(7,58,171,.1);z-index:0;}
+.dot-item.done:not(:last-child)::after{background:rgba(7,58,171,.25);}
+.dot{width:27px;height:27px;border-radius:50%;background:rgba(7,58,171,.05);border:1.5px solid rgba(7,58,171,.12);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--grey);font-family:var(--f-title);position:relative;z-index:1;transition:all .3s;}
+.dot-item.active .dot{background:var(--blue);border-color:var(--blue);color:#fff;box-shadow:0 4px 14px rgba(7,58,171,.28);}
+.dot-item.done .dot{background:rgba(33,226,171,.13);border-color:var(--green-mid);color:var(--green-dark);}
+.dot-lbl{font-size:9px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:rgba(140,140,140,.6);}
+.dot-item.active .dot-lbl{color:var(--blue);}
+.dot-item.done .dot-lbl{color:var(--green-dark);}
+/* BIG CARDS */
+.big-cards{display:flex;flex-direction:column;gap:12px;margin-top:4px;}
+.big-card{border:1.5px solid rgba(7,58,171,.13);border-radius:20px;padding:20px 18px;cursor:pointer;transition:all .22s;display:flex;align-items:flex-start;gap:14px;background:#fff;position:relative;overflow:hidden;}
+.big-card::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(7,58,171,.03),transparent);opacity:0;transition:opacity .22s;}
+.big-card:hover,.big-card.sel{border-color:var(--blue);transform:translateY(-2px);box-shadow:0 8px 28px rgba(7,58,171,.1);}
+.big-card:hover::before,.big-card.sel::before{opacity:1;}
+.big-card.green{border-color:rgba(33,226,171,.25);}
+.big-card.green:hover{border-color:var(--green-mid);box-shadow:0 8px 28px rgba(33,226,171,.15);}
+.bc-icon{width:52px;height:52px;border-radius:14px;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:22px;background:rgba(7,58,171,.07);}
+.big-card.green .bc-icon{background:rgba(33,226,171,.12);}
+.bc-body{flex:1;}
+.bc-title{font-family:var(--f-title);font-size:16px;font-weight:700;color:var(--blue);margin-bottom:4px;}
+.big-card.green .bc-title{color:var(--green-dark);}
+.bc-desc{font-size:13px;color:var(--grey);line-height:1.45;}
+.bc-tag{display:inline-block;margin-top:8px;font-size:10px;font-weight:600;letter-spacing:.06em;border-radius:50px;padding:3px 10px;background:rgba(7,58,171,.07);color:var(--blue);}
+.big-card.green .bc-tag{background:rgba(33,226,171,.12);color:var(--green-dark);}
+.bc-arrow{font-size:18px;color:rgba(7,58,171,.25);align-self:center;transition:transform .2s,color .2s;}
+.big-card:hover .bc-arrow{color:var(--blue);transform:translateX(3px);}
+/* TIPO TABS */
+.tipo-tabs{display:flex;gap:8px;margin-bottom:20px;}
+.tipo-tab{flex:1;padding:10px;border:1.5px solid rgba(7,58,171,.15);border-radius:10px;text-align:center;cursor:pointer;font-family:var(--f-title);font-size:13px;font-weight:600;color:var(--grey);transition:all .2s;background:#fff;}
+.tipo-tab.sel{border-color:var(--blue);background:rgba(7,58,171,.04);color:var(--blue);}
+/* BROKER GRID */
+.broker-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:8px;}
+.broker-card{border:1.5px solid rgba(7,58,171,.12);border-radius:14px;padding:14px 12px;cursor:pointer;transition:all .22s;display:flex;flex-direction:column;align-items:center;gap:8px;background:#fff;position:relative;}
+.broker-card:hover{border-color:rgba(7,58,171,.3);transform:translateY(-1px);box-shadow:0 4px 16px rgba(7,58,171,.08);}
+.broker-card.sel{border-color:var(--blue);background:rgba(7,58,171,.04);box-shadow:0 4px 16px rgba(7,58,171,.12);}
+.broker-card.sel::after{content:'✓';position:absolute;top:8px;right:10px;font-size:11px;font-weight:700;color:var(--blue);}
+.broker-logo{height:36px;width:auto;max-width:80px;object-fit:contain;}
+.broker-name{font-family:var(--f-title);font-size:11px;font-weight:600;color:var(--grey);letter-spacing:.04em;}
+.broker-card.sel .broker-name{color:var(--blue);}
+.broker-hint{font-size:12px;color:var(--grey);line-height:1.5;margin-top:4px;padding:10px 12px;background:rgba(33,226,171,.06);border:1.5px solid rgba(33,226,171,.2);border-radius:10px;display:none;}
+.broker-hint.show{display:block;animation:up .2s ease;}
+/* SMALL CARDS */
+.card-set{display:flex;flex-direction:column;gap:8px;}
+.c-card{border:1.5px solid rgba(7,58,171,.12);border-radius:var(--r-card);padding:12px 14px;display:flex;align-items:center;gap:11px;cursor:pointer;transition:all .2s;background:#fff;}
+.c-card:hover{border-color:rgba(7,58,171,.3);}
+.c-card.sel{border-color:var(--blue);background:rgba(7,58,171,.035);}
+.c-card input[type=radio]{display:none;}
+.c-radio{width:20px;height:20px;border-radius:50%;border:2px solid rgba(7,58,171,.22);flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .2s;}
+.c-card.sel .c-radio{border-color:var(--blue);background:var(--blue);}
+.c-card.sel .c-radio::after{content:'';width:8px;height:8px;border-radius:50%;background:#fff;}
+.c-ico{width:40px;height:40px;border-radius:11px;background:rgba(7,58,171,.07);display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;}
+.c-name{font-family:var(--f-title);font-size:13px;font-weight:600;color:var(--blue);margin-bottom:2px;}
+.c-desc{font-size:12px;color:var(--grey);line-height:1.3;}
+/* FIELDS */
+.fg{margin-bottom:14px;position:relative;}
+.fr{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:0;}
+.fr .fg{margin-bottom:0;}
+label.lbl{display:block;font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--blue);margin-bottom:6px;}
+input,select,textarea{width:100%;background:#fff;border:1.5px solid rgba(7,58,171,.15);border-radius:var(--r-input);padding:13px 14px;font-family:var(--f-body);font-size:14px;color:var(--dark);outline:none;transition:border-color .2s,box-shadow .2s;-webkit-appearance:none;appearance:none;}
+input::placeholder{color:rgba(140,140,140,.4);font-weight:300;}
+input:focus,select:focus{border-color:var(--blue-bright);box-shadow:0 0 0 3px rgba(36,101,246,.09);}
+/* VALIDATION STATES */
+input.valid{border-color:var(--green-mid);background:rgba(33,226,171,.03);}
+input.valid:focus{border-color:var(--green-mid);box-shadow:0 0 0 3px rgba(33,226,171,.1);}
+input.error{border-color:var(--red);background:rgba(229,62,62,.02);}
+input.error:focus{border-color:var(--red);box-shadow:0 0 0 3px rgba(229,62,62,.08);}
+.field-icon{position:absolute;right:12px;top:50%;transform:translateY(-50%);font-size:13px;pointer-events:none;opacity:0;transition:opacity .2s;}
+.field-icon.show{opacity:1;}
+.field-msg{font-size:11px;margin-top:5px;display:none;font-weight:400;}
+.field-msg.show{display:block;}
+.field-msg.ok{color:var(--green-dark);}
+.field-msg.err{color:var(--red);}
+.iw{position:relative;}
+.iw .field-icon{top:38px;}
+select{cursor:pointer;padding-right:34px;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='7' viewBox='0 0 12 7'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%23073AAB' stroke-width='1.5' fill='none' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 13px center;}
+.hint{font-size:11px;color:var(--grey);margin-top:4px;font-weight:300;}
+.ph{display:flex;gap:8px;}
+.ph-pre{width:90px;flex-shrink:0;}
+/* GOOGLE BLOCK */
+.g-block{background:linear-gradient(135deg,rgba(7,58,171,.03),rgba(33,226,171,.04));border:1.5px solid rgba(7,58,171,.12);border-radius:16px;padding:18px 16px;margin-bottom:20px;display:flex;flex-direction:column;align-items:center;gap:10px;}
+.g-block-title{font-family:var(--f-title);font-size:13px;font-weight:600;color:var(--blue);text-align:center;}
+.g-block-sub{font-size:11px;color:var(--grey);text-align:center;line-height:1.5;}
+.g-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:12px 18px;background:#fff;border:1.5px solid rgba(7,58,171,.18);border-radius:50px;cursor:pointer;font-family:var(--f-title);font-size:13px;font-weight:600;color:var(--dark);transition:all .2s;box-shadow:0 2px 8px rgba(0,0,0,.06);}
+.g-btn:hover{border-color:var(--blue);box-shadow:0 4px 16px rgba(7,58,171,.12);transform:translateY(-1px);}
+.g-btn svg{width:18px;height:18px;flex-shrink:0;}
+.or-div{display:flex;align-items:center;gap:10px;margin:4px 0 16px;font-size:10px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--grey);}
+.or-div::before,.or-div::after{content:'';flex:1;height:1px;background:rgba(7,58,171,.09);}
+/* VERIFIED ROW */
+.verified-row{display:none;background:rgba(33,226,171,.07);border:1.5px solid rgba(33,226,171,.3);border-radius:12px;padding:12px 14px;margin-bottom:20px;gap:10px;align-items:center;}
+.verified-row.show{display:flex;animation:up .3s ease;}
+.v-avatar{width:40px;height:40px;border-radius:50%;background:rgba(33,226,171,.15);border:2px solid rgba(33,226,171,.4);display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;overflow:hidden;}
+.v-avatar img{width:100%;height:100%;object-fit:cover;border-radius:50%;}
+.v-info{flex:1;min-width:0;}
+.v-name{font-family:var(--f-title);font-size:14px;font-weight:600;color:var(--blue);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.v-email{font-size:11px;color:var(--grey);}
+.v-badge{font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--green-dark);background:rgba(33,226,171,.13);border-radius:50px;padding:3px 8px;flex-shrink:0;}
+.v-change{font-size:10px;color:rgba(7,58,171,.5);cursor:pointer;text-decoration:underline;margin-top:2px;display:block;background:none;border:none;font-family:var(--f-body);padding:0;}
+/* INFO BOX */
+.info{background:rgba(33,226,171,.06);border:1.5px solid rgba(33,226,171,.28);border-radius:12px;padding:12px 14px;display:flex;gap:9px;align-items:flex-start;margin-bottom:16px;}
+.info-i{font-size:14px;flex-shrink:0;}
+.info-t{font-size:13px;color:#555;line-height:1.5;}
+.info-t strong{color:var(--green-dark);font-weight:600;}
+/* DIVIDER */
+.divider{font-size:10px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--blue);margin:16px 0 10px;display:flex;align-items:center;gap:9px;}
+.divider::after{content:'';flex:1;height:1px;background:rgba(7,58,171,.09);}
+/* TOGGLE */
+.tc-link{color:var(--blue-bright);text-decoration:underline;text-underline-offset:2px;}
+.tog-row{display:flex;align-items:flex-start;gap:12px;padding:13px 14px;background:rgba(7,58,171,.025);border:1.5px solid rgba(7,58,171,.09);border-radius:12px;margin-bottom:9px;cursor:pointer;transition:border-color .2s;}
+.tog-row:hover{border-color:rgba(7,58,171,.18);}
+.tog{width:44px;height:24px;border-radius:12px;background:rgba(140,140,140,.2);flex-shrink:0;position:relative;transition:all .25s;margin-top:2px;}
+.tog::after{content:'';position:absolute;left:3px;top:3px;width:18px;height:18px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.14);transition:left .25s;}
+.tog.on{background:var(--blue);}
+.tog.on::after{left:23px;}
+.tog-lbl{font-size:13px;color:var(--grey);line-height:1.5;flex:1;}
+.tog-lbl strong{display:block;color:var(--dark);font-weight:500;font-family:var(--f-title);font-size:13px;margin-bottom:2px;}
+/* BLOCKED STATE */
+.bl-spinner-wrap{display:flex;flex-direction:column;align-items:center;padding:32px 0 24px;gap:14px;}
+.bl-spinner{width:40px;height:40px;border-radius:50%;border:3px solid rgba(7,58,171,.12);border-top-color:var(--blue);animation:spin .8s linear infinite;}
+@keyframes spin{to{transform:rotate(360deg)}}
+.bl-spinner-txt{font-family:var(--f-title);font-size:13px;font-weight:500;color:var(--grey);}
+.bl-msg{display:flex;flex-direction:column;align-items:center;text-align:center;padding:8px 0 4px;animation:up .35s ease;}
+.bl-icon{font-size:36px;margin-bottom:14px;}
+.bl-title{font-family:var(--f-title);font-weight:700;font-size:17px;color:var(--blue);margin-bottom:12px;}
+.bl-msg p{font-size:13px;color:var(--grey);line-height:1.6;margin-bottom:8px;max-width:300px;}
+.bl-btn-primary{margin-top:16px;width:100%;background:var(--blue);color:#fff;border:none;border-radius:var(--r-btn);padding:14px 24px;font-family:var(--f-title);font-size:14px;font-weight:600;cursor:pointer;transition:background .2s;}
+.bl-btn-primary:hover{background:var(--hover);}
+.bl-btn-ghost{margin-top:10px;width:100%;background:transparent;color:var(--grey);border:none;padding:10px;font-family:var(--f-body);font-size:13px;cursor:pointer;transition:color .2s;}
+.bl-btn-ghost:hover{color:var(--blue);}
+/* CTA */
+.cta{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:460px;padding:12px 22px 26px;background:linear-gradient(to top,#fff 60%,rgba(255,255,255,0));z-index:50;}
+.btn{width:100%;background:var(--blue);color:#fff;border:none;border-radius:var(--r-btn);padding:16px 28px;font-family:var(--f-title);font-size:14px;font-weight:600;cursor:pointer;transition:all .2s;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 4px 18px rgba(7,58,171,.22);}
+.btn:hover{background:var(--hover);transform:translateY(-1px);}
+.btn:active{transform:scale(.98);}
+.btn .arr{transition:transform .2s;}
+.btn:hover .arr{transform:translateX(3px);}
+.btn-back{width:100%;background:transparent;color:var(--grey);border:none;padding:8px;font-family:var(--f-body);font-size:13px;cursor:pointer;margin-top:6px;text-align:center;transition:color .2s;}
+.btn-back:hover{color:var(--blue);}
+.btn:disabled{background:rgba(7,58,171,.25);box-shadow:none;cursor:not-allowed;transform:none;}
+/* TRANSITION SCREEN */
+.ok{display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;flex:1;min-height:100vh;background:linear-gradient(160deg,#05297A 0%,#073AAB 50%,#1a4fc2 100%);position:relative;overflow:hidden;}
+.ok::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 20% 20%,rgba(33,226,171,.1) 0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(36,101,246,.15) 0%,transparent 50%);}
+.ok.show{display:flex;}
+.ok-inner{position:relative;z-index:1;display:flex;flex-direction:column;align-items:center;padding:40px 32px;width:100%;}
+.ok-ring{position:absolute;border-radius:50%;border:1px solid rgba(255,255,255,.05);}
+.ok-ring:nth-child(1){width:350px;height:350px;top:-100px;right:-100px;}
+.ok-ring:nth-child(2){width:200px;height:200px;bottom:-60px;left:-60px;}
+.ok-check{width:88px;height:88px;border-radius:50%;background:rgba(33,226,171,.12);border:2px solid rgba(33,226,171,.4);display:flex;align-items:center;justify-content:center;margin-bottom:24px;animation:popIn .5s cubic-bezier(.175,.885,.32,1.275) both;}
+@keyframes popIn{from{transform:scale(0);opacity:0}to{transform:scale(1);opacity:1}}
+.ok-check-svg{width:40px;height:40px;}
+.ok-check-path{stroke:#21E2AB;stroke-width:3;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:60;stroke-dashoffset:60;animation:drawCheck .4s ease .5s forwards;}
+@keyframes drawCheck{to{stroke-dashoffset:0}}
+.ok-title{font-family:var(--f-title);font-weight:700;font-size:22px;color:#fff;letter-spacing:-.02em;margin-bottom:8px;animation:fadeUp .4s ease .3s both;}
+.ok-sub{font-size:14px;color:rgba(255,255,255,.65);line-height:1.6;max-width:260px;margin-bottom:40px;animation:fadeUp .4s ease .4s both;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.ok-bar-wrap{width:100%;max-width:280px;animation:fadeUp .4s ease .5s both;}
+.ok-bar-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;}
+.ok-bar-lbl{font-size:10px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:rgba(255,255,255,.45);font-family:var(--f-title);}
+.ok-bar-secs{font-size:14px;font-weight:700;color:var(--green);font-family:var(--f-title);}
+.ok-track{height:4px;background:rgba(255,255,255,.1);border-radius:4px;overflow:hidden;}
+.ok-fill{height:100%;width:100%;background:linear-gradient(90deg,var(--green-mid),var(--green));border-radius:4px;transition:width linear;}
+.ok-spinner-wrap{display:none;flex-direction:column;align-items:center;gap:10px;margin-top:20px;}
+.ok-spinner-wrap.show{display:flex;}
+.ok-spinner{width:28px;height:28px;border-radius:50%;border:3px solid rgba(255,255,255,.15);border-top-color:var(--green);animation:spin .7s linear infinite;}
+.ok-spinner-txt{font-size:11px;color:rgba(255,255,255,.4);font-family:var(--f-title);letter-spacing:.08em;text-transform:uppercase;}
+/* VALIDATION ERROR SUMMARY */
+.err-summary{background:rgba(229,62,62,.06);border:1.5px solid rgba(229,62,62,.25);border-radius:12px;padding:12px 14px;margin-bottom:16px;display:none;animation:up .2s ease;}
+.err-summary.show{display:flex;gap:9px;align-items:flex-start;}
+.err-summary-txt{font-size:13px;color:#c53030;line-height:1.5;}
 </style>
 </head>
 <body>
 <div class="shell">
 
-  <!-- TOPBAR -->
-  <div class="topbar">
-    <svg class="logo" viewBox="0 0 220 40" xmlns="http://www.w3.org/2000/svg">
-      <rect x="0" y="0" width="11" height="30" rx="5.5" fill="#05297A" transform="rotate(-45 15 15) translate(-2,-3)"/>
-      <rect x="0" y="0" width="11" height="30" rx="5.5" fill="#2465F6" transform="rotate(-45 15 15) translate(10,-3)"/>
-      <rect x="0" y="0" width="7"  height="18" rx="3.5" fill="#21E2AB" transform="rotate(-45 15 15) translate(17,9)"/>
-      <text x="52" y="16" font-family="Poppins,sans-serif" font-weight="700" font-size="10.5" fill="#073AAB" letter-spacing="0.5">INVERSIONES</text>
-      <text x="52" y="30" font-family="Poppins,sans-serif" font-weight="700" font-size="10.5" fill="#073AAB" letter-spacing="0.5">ANDINAS</text>
-    </svg>
-    <button class="close-btn" onclick="history.back()">✕</button>
-  </div>
+<!-- TOPBAR -->
+<div class="topbar">
+  <svg class="logo" viewBox="0 0 220 40" xmlns="http://www.w3.org/2000/svg">
+    <rect x="0" y="0" width="11" height="30" rx="5.5" fill="#05297A" transform="rotate(-45 15 15) translate(-2,-3)"/>
+    <rect x="0" y="0" width="11" height="30" rx="5.5" fill="#2465F6" transform="rotate(-45 15 15) translate(10,-3)"/>
+    <rect x="0" y="0" width="7" height="18" rx="3.5" fill="#21E2AB" transform="rotate(-45 15 15) translate(17,9)"/>
+    <text x="52" y="16" font-family="Poppins,sans-serif" font-weight="700" font-size="10.5" fill="#073AAB" letter-spacing="0.5">INVERSIONES</text>
+    <text x="52" y="30" font-family="Poppins,sans-serif" font-weight="700" font-size="10.5" fill="#073AAB" letter-spacing="0.5">ANDINAS</text>
+  </svg>
+  <button class="close-btn" onclick="history.back()">✕</button>
+</div>
 
-  <!-- ════════════════════════════════════
-       SCENE 0 — BIFURCACIÓN INICIAL
-  ════════════════════════════════════ -->
-  <div class="scene active" id="s0">
-    <div class="eyebrow">Inversiones Andinas</div>
-    <h1>¿Qué querés<br><em>hacer hoy?</em></h1>
-    <p class="lead">Elegí una opción y en minutos estás operando con nuestro equipo.</p>
-    <svg viewBox="0 0 320 10" class="wave" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0,5 C20,0 40,10 60,5 C80,0 100,10 120,5 C140,0 160,10 180,5 C200,0 220,10 240,5 C260,0 280,10 300,5 C310,2 315,4 320,5"/>
-    </svg>
-
-    <div class="big-cards">
-      <div class="big-card" onclick="startFlow('nueva')">
-        <div class="bc-icon">🚀</div>
-        <div class="bc-body">
-          <div class="bc-title">Abrir una cuenta</div>
-          <div class="bc-desc">Creamos tu cuenta desde cero. Gratis, sin papelerío, en minutos.</div>
-          <span class="bc-tag">Local · Empresa · Internacional</span>
-        </div>
-        <div class="bc-arrow">›</div>
+<!-- SCENE 0: BIFURCACIÓN -->
+<div class="scene active" id="s0">
+  <div class="eyebrow">Inversiones Andinas</div>
+  <h1>¿Qué querés<br><em>hacer hoy?</em></h1>
+  <p class="lead">Elegí una opción y en minutos estás operando con nuestro equipo.</p>
+  <svg viewBox="0 0 320 10" class="wave" xmlns="http://www.w3.org/2000/svg"><path d="M0,5 C20,0 40,10 60,5 C80,0 100,10 120,5 C140,0 160,10 180,5 C200,0 220,10 240,5 C260,0 280,10 300,5 C310,2 315,4 320,5"/></svg>
+  <div class="big-cards">
+    <div class="big-card" onclick="startFlow('nueva')">
+      <div class="bc-icon">🚀</div>
+      <div class="bc-body">
+        <div class="bc-title">Abrir una cuenta</div>
+        <div class="bc-desc">Creamos tu cuenta desde cero. Gratis, sin papelerío, en minutos.</div>
+        <span class="bc-tag">Local · Empresa · Internacional</span>
       </div>
+      <div class="bc-arrow">›</div>
+    </div>
+    <div class="big-card green" onclick="startFlow('vincular')">
+      <div class="bc-icon">🤝</div>
+      <div class="bc-body">
+        <div class="bc-title">Sumar a IA como mi asesor</div>
+        <div class="bc-desc">Tenés broker y querés que te acompañemos. Lo gestionamos nosotros.</div>
+        <span class="bc-tag">Cambio de asesor</span>
+      </div>
+      <div class="bc-arrow">›</div>
+    </div>
+  </div>
+</div>
 
-      <div class="big-card green" onclick="startFlow('vincular')">
-        <div class="bc-icon">🤝</div>
-        <div class="bc-body">
-          <div class="bc-title">Sumar a IA como mi asesor</div>
-          <div class="bc-desc">Tenés broker y querés que te acompañemos. Lo gestionamos nosotros, sin costo.</div>
-          <span class="bc-tag">Cambio de asesor · Gratis</span>
+<!-- FLUJO A: sA1 TIPO -->
+<div class="scene" id="sA1">
+  <div class="eyebrow">Nueva cuenta</div>
+  <h1>¿Cómo querés<br><em>operar?</em></h1>
+  <p class="lead">Apertura gratuita, sin costos ocultos.</p>
+  <svg viewBox="0 0 320 10" class="wave" xmlns="http://www.w3.org/2000/svg"><path d="M0,5 C20,0 40,10 60,5 C80,0 100,10 120,5 C140,0 160,10 180,5 C200,0 220,10 240,5 C260,0 280,10 300,5 C310,2 315,4 320,5"/></svg>
+  <div class="prog"><div class="prog-track"><div class="prog-fill" style="width:33%"></div></div><div class="prog-lbl"><strong>Paso 1</strong><span>de 3</span></div></div>
+  <div class="dots">
+    <div class="dot-item active"><div class="dot">1</div><div class="dot-lbl">Tipo</div></div>
+    <div class="dot-item"><div class="dot">2</div><div class="dot-lbl">Broker</div></div>
+    <div class="dot-item"><div class="dot">3</div><div class="dot-lbl">Datos</div></div>
+  </div>
+  <div class="card-set">
+    <label class="c-card sel" onclick="sel(this);setTipo('persona')">
+      <input type="radio" name="tipo" checked>
+      <div class="c-radio"></div><div class="c-ico">👤</div>
+      <div><div class="c-name">Persona</div><div class="c-desc">Cuenta personal para inversores individuales.</div></div>
+    </label>
+    <label class="c-card green" onclick="sel(this);setTipo('empresa')">
+      <input type="radio" name="tipo">
+      <div class="c-radio"></div><div class="c-ico">🏢</div>
+      <div><div class="c-name">Empresa</div><div class="c-desc">Para personas jurídicas o empresas.</div></div>
+    </label>
+    <label class="c-card" style="border-color:rgba(36,101,246,.2)" onclick="sel(this);setTipo('internacional')">
+      <input type="radio" name="tipo">
+      <div class="c-radio"></div><div class="c-ico">🌎</div>
+      <div><div class="c-name">Internacional</div><div class="c-desc">Mercados del exterior en USD.</div></div>
+    </label>
+  </div>
+</div>
+
+<!-- FLUJO A: sA2 BROKER -->
+<div class="scene" id="sA2">
+  <div class="eyebrow">Nueva cuenta</div>
+  <h1>Elegí tu<br><em>broker</em></h1>
+  <p class="lead">Trabajamos con los principales brokers del mercado argentino.</p>
+  <svg viewBox="0 0 320 10" class="wave" xmlns="http://www.w3.org/2000/svg"><path d="M0,5 C20,0 40,10 60,5 C80,0 100,10 120,5 C140,0 160,10 180,5 C200,0 220,10 240,5 C260,0 280,10 300,5 C310,2 315,4 320,5"/></svg>
+  <div class="prog"><div class="prog-track"><div class="prog-fill" style="width:66%"></div></div><div class="prog-lbl"><strong>Paso 2</strong><span>de 3</span></div></div>
+  <div class="dots">
+    <div class="dot-item done"><div class="dot">✓</div><div class="dot-lbl">Tipo</div></div>
+    <div class="dot-item active"><div class="dot">2</div><div class="dot-lbl">Broker</div></div>
+    <div class="dot-item"><div class="dot">3</div><div class="dot-lbl">Datos</div></div>
+  </div>
+
+  <div class="broker-grid" id="brokerGrid">
+    <div class="broker-card sel" data-broker="balanz" onclick="selectBroker(this)">
+      <img class="broker-logo" src="https://inversionesandinas.com/wp-content/uploads/2025/09/balanz-logo-sin-lienzo.png.webp" alt="Balanz">
+      <div class="broker-name">Balanz</div>
+    </div>
+    <div class="broker-card" data-broker="iol" onclick="selectBroker(this)">
+      <img class="broker-logo" src="https://inversionesandinas.com/wp-content/uploads/2023/05/iol.svg" alt="IOL" onerror="this.style.display='none';this.nextElementSibling.textContent='IOL'">
+      <div class="broker-name">IOL Invertir Online</div>
+    </div>
+    <div class="broker-card" data-broker="bmb" onclick="selectBroker(this)">
+      <img class="broker-logo" src="https://inversionesandinas.com/wp-content/uploads/2025/12/bullmarket-inversiones-andinas-redondo.png.webp" alt="Bull Market">
+      <div class="broker-name">Bull Market</div>
+    </div>
+    <div class="broker-card" data-broker="inviu" onclick="selectBroker(this)">
+      <img class="broker-logo" src="https://inversionesandinas.com/wp-content/uploads/2023/05/inviu.svg" alt="Inviu">
+      <div class="broker-name">Inviu</div>
+    </div>
+    <div class="broker-card" data-broker="ppi" onclick="selectBroker(this)" style="grid-column:1/-1;max-width:200px;margin:0 auto;width:100%">
+      <img class="broker-logo" src="https://inversionesandinas.com/wp-content/uploads/2026/03/ppi-logo-inversiones-andinas.png.webp" alt="PPI">
+      <div class="broker-name">PPI Portfolio Personal</div>
+    </div>
+  </div>
+
+  <!-- Hint según broker seleccionado -->
+  <div class="broker-hint show" id="brokerHint">
+    ✅ Abrís tu cuenta en <strong id="brokerHintName">Balanz</strong> con el acompañamiento de nuestro equipo.
+  </div>
+</div>
+
+<!-- FLUJO A: sA3 DATOS -->
+<div class="scene" id="sA3">
+  <div class="eyebrow">Tus datos</div>
+  <h1>Completá<br><em>en un clic</em></h1>
+  <p class="lead">Usá Google para pre-llenar tus datos. Solo vas a necesitar tu WhatsApp.</p>
+  <svg viewBox="0 0 320 10" class="wave" xmlns="http://www.w3.org/2000/svg"><path d="M0,5 C20,0 40,10 60,5 C80,0 100,10 120,5 C140,0 160,10 180,5 C200,0 220,10 240,5 C260,0 280,10 300,5 C310,2 315,4 320,5"/></svg>
+  <div class="prog"><div class="prog-track"><div class="prog-fill" style="width:95%"></div></div><div class="prog-lbl"><strong>Paso 3</strong><span>de 3</span></div></div>
+  <div class="dots">
+    <div class="dot-item done"><div class="dot">✓</div><div class="dot-lbl">Tipo</div></div>
+    <div class="dot-item done"><div class="dot">✓</div><div class="dot-lbl">Broker</div></div>
+    <div class="dot-item active"><div class="dot">3</div><div class="dot-lbl">Datos</div></div>
+  </div>
+
+  <!-- Google block -->
+  <div class="g-block" id="gBlockA">
+    <div class="g-block-title">Completá tus datos en un clic</div>
+    <div class="g-block-sub">Solo usamos tu nombre y email.<br>No accedemos a nada más.</div>
+    <button class="g-btn" onclick="triggerGoogle('A')">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
+        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
+        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
+        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
+      </svg>
+      Continuar con Google
+    </button>
+  </div>
+
+  <!-- Verified row -->
+  <div class="verified-row" id="vRowA">
+    <div class="v-avatar" id="vAvA">👤</div>
+    <div class="v-info">
+      <div class="v-name" id="vNameA">—</div>
+      <div class="v-email" id="vEmailA">—</div>
+      <button class="v-change" onclick="clearGoogle('A')">Usar otra cuenta</button>
+    </div>
+    <div class="v-badge">✓ Verificado</div>
+  </div>
+
+  <!-- Error summary -->
+  <div class="err-summary" id="errSummaryA">
+    <span>⚠️</span>
+    <div class="err-summary-txt" id="errSummaryTxtA"></div>
+  </div>
+
+  <!-- Manual fields -->
+  <div id="manualA">
+    <div class="or-div" id="orA">o completá manualmente</div>
+    <div class="fr" style="margin-bottom:14px">
+      <div class="fg">
+        <label class="lbl">Nombre</label>
+        <div class="iw">
+          <input type="text" id="aNombre" placeholder="Juan" oninput="validateField(this,'nombre')" onblur="validateField(this,'nombre',true)">
+          <span class="field-icon" id="aNombre-icon"></span>
         </div>
-        <div class="bc-arrow">›</div>
+        <div class="field-msg" id="aNombre-msg"></div>
+      </div>
+      <div class="fg">
+        <label class="lbl">Apellido</label>
+        <div class="iw">
+          <input type="text" id="aApellido" placeholder="Pérez" oninput="validateField(this,'apellido')" onblur="validateField(this,'apellido',true)">
+          <span class="field-icon" id="aApellido-icon"></span>
+        </div>
+        <div class="field-msg" id="aApellido-msg"></div>
       </div>
     </div>
-  </div>
-
-  <!-- ════════════════════════════════════
-       FLUJO A — NUEVA CUENTA
-       A1: Tipo → A2: Datos
-  ════════════════════════════════════ -->
-
-  <!-- A1: Tipo de cuenta -->
-  <div class="scene" id="sA1">
-    <div class="eyebrow">Nueva cuenta</div>
-    <h1>¿Cómo querés<br><em>operar?</em></h1>
-    <p class="lead">Apertura gratuita, sin costos ocultos.</p>
-    <svg viewBox="0 0 320 10" class="wave" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0,5 C20,0 40,10 60,5 C80,0 100,10 120,5 C140,0 160,10 180,5 C200,0 220,10 240,5 C260,0 280,10 300,5 C310,2 315,4 320,5"/>
-    </svg>
-    <div class="prog">
-      <div class="prog-track"><div class="prog-fill" style="width:50%"></div></div>
-      <div class="prog-lbl"><strong>Paso 1</strong><span>de 2</span></div>
-    </div>
-    <div class="dots">
-      <div class="dot-item active"><div class="dot">1</div><div class="dot-lbl">Tipo</div></div>
-      <div class="dot-item"><div class="dot">2</div><div class="dot-lbl">Datos</div></div>
-    </div>
-    <div class="card-set">
-      <label class="c-card sel" onclick="sel(this)">
-        <input type="radio" name="tipo" checked>
-        <div class="c-radio"></div>
-        <div class="c-ico">👤</div>
-        <div><div class="c-name">Cuenta Personal Local</div><div class="c-desc">Para inversores individuales.</div></div>
-      </label>
-      <label class="c-card green" onclick="sel(this)">
-        <input type="radio" name="tipo">
-        <div class="c-radio"></div>
-        <div class="c-ico">🏢</div>
-        <div><div class="c-name">Cuenta Empresa Local</div><div class="c-desc">Para personas jurídicas.</div></div>
-      </label>
-      <label class="c-card purple" onclick="sel(this)">
-        <input type="radio" name="tipo">
-        <div class="c-radio"></div>
-        <div class="c-ico">🌎</div>
-        <div><div class="c-name">Cuenta Internacional</div><div class="c-desc">Mercados del exterior en USD.</div></div>
-      </label>
+    <div class="fg">
+      <label class="lbl">Email</label>
+      <div class="iw">
+        <input type="email" id="aEmail" placeholder="juan@email.com" oninput="validateField(this,'email')" onblur="validateField(this,'email',true)">
+        <span class="field-icon" id="aEmail-icon"></span>
+      </div>
+      <div class="field-msg" id="aEmail-msg"></div>
     </div>
   </div>
 
-  <!-- A2: Datos personales — CON GOOGLE LOGIN -->
-  <div class="scene" id="sA2">
-    <div class="eyebrow">Tus datos</div>
-    <h1>Información<br><em>personal</em></h1>
-    <p class="lead">Usá Google para completar todo en un clic.</p>
-    <svg viewBox="0 0 320 10" class="wave" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0,5 C20,0 40,10 60,5 C80,0 100,10 120,5 C140,0 160,10 180,5 C200,0 220,10 240,5 C260,0 280,10 300,5 C310,2 315,4 320,5"/>
-    </svg>
-    <div class="prog">
-      <div class="prog-track"><div class="prog-fill" style="width:95%"></div></div>
-      <div class="prog-lbl"><strong>Paso 2</strong><span>de 2</span></div>
+  <!-- WhatsApp — siempre visible -->
+  <div class="fg" style="margin-top:4px">
+    <label class="lbl">WhatsApp</label>
+    <div class="ph">
+      <select class="ph-pre" id="aPais"><option value="+54">🇦🇷 +54</option><option value="+1">🇺🇸 +1</option><option value="+598">🇺🇾 +598</option></select>
+      <div class="iw" style="flex:1">
+        <input type="tel" id="aTel" placeholder="11 2345-6789" oninput="validateField(this,'tel')" onblur="validateField(this,'tel',true)">
+        <span class="field-icon" id="aTel-icon"></span>
+      </div>
     </div>
-    <div class="dots">
-      <div class="dot-item done"><div class="dot">✓</div><div class="dot-lbl">Tipo</div></div>
-      <div class="dot-item active"><div class="dot">2</div><div class="dot-lbl">Datos</div></div>
-    </div>
+    <div class="field-msg" id="aTel-msg"></div>
+  </div>
 
-    <!-- Google login block — se oculta tras login -->
-    <div class="g-login-block" id="gLoginBlockA">
-      <div class="g-login-title">Completá tus datos en un clic</div>
-      <div class="g-login-sub">Usamos Google solo para obtener tu nombre y mail.<br>No accedemos a nada más.</div>
-      <button class="g-btn" onclick="triggerGoogleLogin('A')">
+  <div class="tog-row" id="togAlt" onclick="togTC('alt')">
+    <div class="tog" id="togAltEl"></div>
+    <div class="tog-lbl">
+      <strong>Acepto los Términos y Condiciones</strong>
+      Leí y acepto los <a href="https://inversionesandinas.com/terminos-y-condiciones-y-politica-de-privacidad-de-inversiones-andinas/" target="_blank" class="tc-link" onclick="event.stopPropagation()">Términos y Condiciones y Política de Privacidad</a> de Inversiones Andinas.
+    </div>
+  </div>
+</div>
+
+<!-- A SUCCESS -->
+<div class="ok" id="okA">
+  <div class="ok-ring"></div><div class="ok-ring"></div>
+  <div class="ok-inner">
+    <div class="ok-check"><svg class="ok-check-svg" viewBox="0 0 40 40"><polyline class="ok-check-path" points="8,21 17,30 33,13"/></svg></div>
+    <h2 class="ok-title">Último paso:<br>completá en <span id="okBrokerName">Balanz</span></h2>
+    <p class="ok-sub">Tu solicitud está registrada. Ahora te redirigimos a <span id="okBrokerName2">Balanz</span> para finalizar la apertura de tu cuenta.</p>
+    <div class="ok-bar-wrap">
+      <div class="ok-bar-top"><span class="ok-bar-lbl">Abriendo el broker para finalizar</span><span class="ok-bar-secs" id="secsA">5</span></div>
+      <div class="ok-track"><div class="ok-fill" id="fillA"></div></div>
+    </div>
+    <div class="ok-spinner-wrap" id="spinA"><div class="ok-spinner"></div><div class="ok-spinner-txt">Cargando…</div></div>
+  </div>
+</div>
+
+<!-- FLUJO B: sB1 VINCULACIÓN -->
+<div class="scene" id="sB1">
+  <div class="eyebrow">Vinculación</div>
+  <h1>Sumate al equipo<br><em>Inversiones Andinas</em></h1>
+  <p class="lead">Ya tenés broker. La vinculamos a IA sin trámites de tu parte.</p>
+  <svg viewBox="0 0 320 10" class="wave" xmlns="http://www.w3.org/2000/svg"><path d="M0,5 C20,0 40,10 60,5 C80,0 100,10 120,5 C140,0 160,10 180,5 C200,0 220,10 240,5 C260,0 280,10 300,5 C310,2 315,4 320,5"/></svg>
+  <div class="info"><div class="info-i">⚡</div><div class="info-t"><strong>Simple.</strong> Nos encargamos del trámite ante tu broker.</div></div>
+
+  <div class="fg">
+    <label class="lbl">Broker actual</label>
+    <select id="brokerSel" onchange="onBrokerVincular(this)">
+      <option value="">¿En qué broker operás?</option>
+      <option value="Balanz">Balanz</option>
+      <option value="IOL">IOL (Invertir Online)</option>
+      <option value="BMB">Bull Market Brokers</option>
+      <option value="Inviu">Inviu</option>
+      <option value="PPI">PPI (Portfolio Personal)</option>
+      <option value="Otro">Otro broker</option>
+    </select>
+  </div>
+
+  <div id="blockedState" style="display:none">
+    <div id="blockedSpinner" class="bl-spinner-wrap"><div class="bl-spinner"></div><div class="bl-spinner-txt">Verificando disponibilidad…</div></div>
+    <div id="msgInviu" style="display:none" class="bl-msg">
+      <div class="bl-icon">⚠️</div><div class="bl-title">Inviu no permite el cambio de asesor</div>
+      <p>Inviu no permite cambiar asesor con una cuenta existente. Podés abrir una cuenta nueva en otro broker aliado.</p>
+      <button class="bl-btn-primary" onclick="startFlow('nueva')">Abrir una cuenta nueva →</button>
+      <button class="bl-btn-ghost" onclick="resetBroker()">← Elegir otro broker</button>
+    </div>
+    <div id="msgPPI" style="display:none" class="bl-msg">
+      <div class="bl-icon">🕐</div><div class="bl-title">Próximamente habilitado</div>
+      <p>Estamos trabajando para habilitar el cambio desde PPI. Pronto disponible.</p>
+      <button class="bl-btn-ghost" onclick="resetBroker()">← Elegir otro broker</button>
+    </div>
+    <div id="msgOtro" style="display:none" class="bl-msg">
+      <div class="bl-icon">🔍</div><div class="bl-title">Sin convenio disponible</div>
+      <p>No tenemos convenio con ese broker. Te invitamos a abrir cuenta en uno de nuestros brokers asociados.</p>
+      <button class="bl-btn-primary" onclick="startFlow('nueva')">Abrir una cuenta nueva →</button>
+      <button class="bl-btn-ghost" onclick="resetBroker()">← Elegir otro broker</button>
+    </div>
+  </div>
+
+  <div id="brokerVinFields">
+    <div class="fg">
+      <label class="lbl">Número de comitente</label>
+      <div class="iw"><input type="text" inputmode="numeric" id="bComitente" placeholder="Ej: 123456" oninput="validateField(this,'comitente')" onblur="validateField(this,'comitente',true)"><span class="field-icon" id="bComitente-icon"></span></div>
+      <div class="field-msg" id="bComitente-msg"></div>
+      <div class="hint">Lo encontrás en tu resumen de cuenta del broker.</div>
+    </div>
+    <div class="divider">Tus datos</div>
+
+    <!-- Google block B -->
+    <div class="g-block" id="gBlockB">
+      <div class="g-block-title">Completá tus datos en un clic</div>
+      <div class="g-block-sub">Solo usamos tu nombre y email.<br>No accedemos a nada más.</div>
+      <button class="g-btn" onclick="triggerGoogle('B')">
         <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
           <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
@@ -688,598 +498,424 @@
       </button>
     </div>
 
-    <!-- Verificado: se muestra tras login exitoso -->
-    <div class="verified-row" id="verifiedRowA">
-      <div class="v-avatar" id="vAvatarA">👤</div>
+    <div class="verified-row" id="vRowB">
+      <div class="v-avatar" id="vAvB">👤</div>
       <div class="v-info">
-        <div class="v-name" id="vNameA">—</div>
-        <div class="v-email" id="vEmailA">—</div>
-        <button class="v-change" onclick="clearGoogleLogin('A')">Usar otra cuenta</button>
+        <div class="v-name" id="vNameB">—</div>
+        <div class="v-email" id="vEmailB">—</div>
+        <button class="v-change" onclick="clearGoogle('B')">Usar otra cuenta</button>
       </div>
-      <div class="v-badge">Verificado</div>
+      <div class="v-badge">✓ Verificado</div>
     </div>
 
-    <!-- Campos (nombre/apellido/email se pre-llenan o se muestran editables si no usó Google) -->
-    <div id="manualFieldsA">
-      <div class="or-divider" id="orDividerA">o completá manualmente</div>
-      <div class="fr">
-        <div class="fg"><label class="lbl">Nombre</label><input type="text" id="fNombreA" placeholder="Juan"></div>
-        <div class="fg"><label class="lbl">Apellido</label><input type="text" id="fApellidoA" placeholder="Pérez"></div>
+    <div class="err-summary" id="errSummaryB">
+      <span>⚠️</span>
+      <div class="err-summary-txt" id="errSummaryTxtB"></div>
+    </div>
+
+    <div id="manualB">
+      <div class="or-div" id="orB">o completá manualmente</div>
+      <div class="fr" style="margin-bottom:14px">
+        <div class="fg">
+          <label class="lbl">Nombre</label>
+          <div class="iw"><input type="text" id="bNombre" placeholder="Juan" oninput="validateField(this,'nombre')" onblur="validateField(this,'nombre',true)"><span class="field-icon" id="bNombre-icon"></span></div>
+          <div class="field-msg" id="bNombre-msg"></div>
+        </div>
+        <div class="fg">
+          <label class="lbl">Apellido</label>
+          <div class="iw"><input type="text" id="bApellido" placeholder="Pérez" oninput="validateField(this,'apellido')" onblur="validateField(this,'apellido',true)"><span class="field-icon" id="bApellido-icon"></span></div>
+          <div class="field-msg" id="bApellido-msg"></div>
+        </div>
       </div>
       <div class="fg">
         <label class="lbl">Email</label>
-        <div class="iw"><input type="email" id="fEmailA" placeholder="juan@email.com"><span class="ii">✉</span></div>
+        <div class="iw"><input type="email" id="bEmail" placeholder="juan@email.com" oninput="validateField(this,'email')" onblur="validateField(this,'email',true)"><span class="field-icon" id="bEmail-icon"></span></div>
+        <div class="field-msg" id="bEmail-msg"></div>
       </div>
     </div>
 
-    <!-- DNI siempre requerido -->
-    <div class="fg">
-      <label class="lbl">DNI / CUIL</label>
-      <div class="iw"><input type="text" id="fDniA" inputmode="numeric" placeholder="20 12345678 9"><span class="ii">🪪</span></div>
-    </div>
-
-    <!-- Teléfono siempre requerido -->
     <div class="fg">
       <label class="lbl">WhatsApp</label>
       <div class="ph">
-        <select class="ph-pre"><option>🇦🇷 +54</option><option>🇺🇸 +1</option><option>🇺🇾 +598</option></select>
-        <div class="iw" style="flex:1"><input type="tel" id="fTelA" placeholder="11 2345-6789"></div>
+        <select class="ph-pre" id="bPais"><option value="+54">🇦🇷 +54</option><option value="+1">🇺🇸 +1</option><option value="+598">🇺🇾 +598</option></select>
+        <div class="iw" style="flex:1"><input type="tel" id="bTel" placeholder="11 2345-6789" oninput="validateField(this,'tel')" onblur="validateField(this,'tel',true)"><span class="field-icon" id="bTel-icon"></span></div>
       </div>
+      <div class="field-msg" id="bTel-msg"></div>
+      <div class="hint">Te avisamos cuando el cambio esté confirmado.</div>
     </div>
 
-    <div class="tog-row" id="togAlt" onclick="togTC('alt')">
-      <div class="tog" id="togAltEl"></div>
+    <div class="tog-row" id="togAse" onclick="togTC('ase')">
+      <div class="tog" id="togAseEl"></div>
       <div class="tog-lbl">
         <strong>Acepto los Términos y Condiciones</strong>
-        Leí los <a href="https://inversionesandinas.com/terminos-y-condiciones-de-inversiones-andinas/" target="_blank" class="tc-link" onclick="event.stopPropagation()">Términos y Condiciones</a> y la <a href="https://inversionesandinas.com/politica-y-privacidad-de-inversiones-andinas/" target="_blank" class="tc-link" onclick="event.stopPropagation()">Política de Privacidad</a>.
+        Leí y acepto los <a href="https://inversionesandinas.com/terminos-y-condiciones-y-politica-de-privacidad-de-inversiones-andinas/" target="_blank" class="tc-link" onclick="event.stopPropagation()">Términos y Condiciones y Política de Privacidad</a> de Inversiones Andinas.
       </div>
     </div>
   </div>
+</div>
 
-
-  <!-- A — TRANSITION SCREEN -->
-  <div class="ok" id="okA">
-    <div class="ok-inner">
-      <div class="ok-check-wrap">
-        <svg class="ok-check-svg" viewBox="0 0 40 40">
-          <polyline class="ok-check-path" points="8,21 17,30 33,13"/>
-        </svg>
-      </div>
-      <h2 class="ok-title">¡Todo listo!</h2>
-      <p class="ok-sub">Te llevamos al formulario de apertura con tus datos ya cargados.</p>
-      <div class="ok-progress-wrap">
-        <div class="ok-progress-label">
-          <span class="ok-progress-txt">Preparando tu formulario</span>
-          <span class="ok-progress-secs" id="cdNumA">5</span>
-        </div>
-        <div class="ok-bar-track">
-          <div class="ok-bar-fill" id="cdBarA"></div>
-        </div>
-      </div>
-      <div class="ok-spinner-wrap" id="okASpinner">
-        <div class="ok-spinner"></div>
-        <div class="ok-spinner-txt">Abriendo el formulario…</div>
-      </div>
+<!-- B SUCCESS -->
+<div class="ok" id="okB">
+  <div class="ok-ring"></div><div class="ok-ring"></div>
+  <div class="ok-inner">
+    <div class="ok-check"><svg class="ok-check-svg" viewBox="0 0 40 40"><polyline class="ok-check-path" points="8,21 17,30 33,13"/></svg></div>
+    <h2 class="ok-title">¡Solicitud enviada!</h2>
+    <p class="ok-sub">Recibimos tu solicitud de cambio de asesor. Nuestro equipo la gestiona y te avisa por WhatsApp cuando esté confirmado.</p>
+    <div class="ok-bar-wrap">
+      <div class="ok-bar-top"><span class="ok-bar-lbl">Procesando solicitud</span><span class="ok-bar-secs" id="secsB">5</span></div>
+      <div class="ok-track"><div class="ok-fill" id="fillB"></div></div>
     </div>
+    <div class="ok-spinner-wrap" id="spinB"><div class="ok-spinner"></div><div class="ok-spinner-txt">Finalizando…</div></div>
   </div>
-
-  <!-- ════════════════════════════════════
-       FLUJO B — CAMBIO DE ASESOR (1 paso)
-  ════════════════════════════════════ -->
-  <div class="scene" id="sB1">
-    <div class="eyebrow">Vinculación</div>
-    <h1>Sumate al equipo<br><em>Inversiones Andinas</em></h1>
-    <p class="lead">Ya tenés cuenta en un broker. La vinculamos a IA sin costo ni trámites de tu parte.</p>
-    <svg viewBox="0 0 320 10" class="wave" xmlns="http://www.w3.org/2000/svg">
-      <path d="M0,5 C20,0 40,10 60,5 C80,0 100,10 120,5 C140,0 160,10 180,5 C200,0 220,10 240,5 C260,0 280,10 300,5 C310,2 315,4 320,5"/>
-    </svg>
-    <div class="info">
-      <div class="info-i">⚡</div>
-      <div class="info-t"><strong>Simple y sin costo.</strong> Nos encargamos del trámite ante tu broker.</div>
-    </div>
-    <div class="fg">
-      <label class="lbl">Broker actual</label>
-      <select id="brokerSelect" onchange="onBrokerChange(this)">
-        <option value="">¿En qué broker operás?</option>
-        <option value="Balanz">Balanz</option>
-        <option value="IOL">IOL (Invertir Online)</option>
-        <option value="BMB">Bull Market Brokers</option>
-        <option value="Inviu">Inviu</option>
-        <option value="PPI">PPI (Portfolio Personal)</option>
-        <option value="Otro">Otro broker</option>
-      </select>
-    </div>
-
-    <!-- Blocked state overlay -->
-    <div id="blockedState" style="display:none">
-      <div id="blockedSpinner" class="bl-spinner-wrap">
-        <div class="bl-spinner"></div>
-        <div class="bl-spinner-txt">Verificando disponibilidad…</div>
-      </div>
-      <div id="msgInviu" style="display:none" class="bl-msg">
-        <div class="bl-icon">⚠️</div>
-        <div class="bl-title">Inviu no permite el cambio de asesor</div>
-        <p>Actualmente Inviu no permite realizar cambios de asesor con una cuenta y correo electrónico ya existentes en su base de datos.</p>
-        <p>Te ofrecemos abrir una cuenta nueva en Inviu (usando un correo diferente) o en otro de nuestros brokers aliados.</p>
-        <button class="bl-btn-primary" onclick="startFlow('nueva')">Abrir una cuenta nueva →</button>
-        <button class="bl-btn-ghost" onclick="resetBroker()">← Elegir otro broker</button>
-      </div>
-      <div id="msgPPI" style="display:none" class="bl-msg">
-        <div class="bl-icon">🕐</div>
-        <div class="bl-title">Próximamente habilitado</div>
-        <p>Estamos trabajando para habilitar el cambio de asesor desde PPI. Pronto vas a poder hacerlo desde acá.</p>
-        <button class="bl-btn-ghost" onclick="resetBroker()">← Elegir otro broker</button>
-      </div>
-      <div id="msgOtro" style="display:none" class="bl-msg">
-        <div class="bl-icon">🔍</div>
-        <div class="bl-title">Sin convenio disponible</div>
-        <p>Actualmente no tenemos convenio disponible con ese broker.</p>
-        <p>Te invitamos a abrir una cuenta en alguno de nuestros brokers asociados para poder trabajar juntos.</p>
-        <button class="bl-btn-primary" onclick="startFlow('nueva')">Abrir una cuenta nueva →</button>
-        <button class="bl-btn-ghost" onclick="resetBroker()">← Elegir otro broker</button>
-      </div>
-    </div>
-
-    <div id="brokerFields">
-      <div class="fg">
-        <label class="lbl">Número de comitente</label>
-        <div class="iw"><input type="text" inputmode="numeric" placeholder="Ej: 123456"><span class="ii">🔑</span></div>
-        <div class="hint">Lo encontrás en tu resumen de cuenta del broker.</div>
-      </div>
-
-      <div class="divider">Tus datos</div>
-
-      <!-- Google login block para Flujo B -->
-      <div class="g-login-block" id="gLoginBlockB">
-        <div class="g-login-title">Completá tus datos en un clic</div>
-        <div class="g-login-sub">Usamos Google solo para obtener tu nombre y mail.<br>No accedemos a nada más.</div>
-        <button class="g-btn" onclick="triggerGoogleLogin('B')">
-          <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-            <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-            <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-            <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z" fill="#FBBC05"/>
-            <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" fill="#EA4335"/>
-          </svg>
-          Continuar con Google
-        </button>
-      </div>
-
-      <!-- Verificado B -->
-      <div class="verified-row" id="verifiedRowB">
-        <div class="v-avatar" id="vAvatarB">👤</div>
-        <div class="v-info">
-          <div class="v-name" id="vNameB">—</div>
-          <div class="v-email" id="vEmailB">—</div>
-          <button class="v-change" onclick="clearGoogleLogin('B')">Usar otra cuenta</button>
-        </div>
-        <div class="v-badge">Verificado</div>
-      </div>
-
-      <!-- Manual fields B -->
-      <div id="manualFieldsB">
-        <div class="or-divider" id="orDividerB">o completá manualmente</div>
-        <div class="fr">
-          <div class="fg"><label class="lbl">Nombre</label><input type="text" id="fNombreB" placeholder="Juan"></div>
-          <div class="fg"><label class="lbl">Apellido</label><input type="text" id="fApellidoB" placeholder="Pérez"></div>
-        </div>
-        <div class="fg">
-          <label class="lbl">Email</label>
-          <div class="iw"><input type="email" id="fEmailB" placeholder="juan@email.com"><span class="ii">✉</span></div>
-        </div>
-      </div>
-
-      <!-- DNI siempre -->
-      <div class="fg">
-        <label class="lbl">DNI / CUIL</label>
-        <div class="iw"><input type="text" id="fDniB" inputmode="numeric" placeholder="20 12345678 9"><span class="ii">🪪</span></div>
-      </div>
-
-      <!-- Teléfono siempre -->
-      <div class="fg">
-        <label class="lbl">WhatsApp</label>
-        <div class="ph">
-          <select class="ph-pre"><option>🇦🇷 +54</option><option>🇺🇸 +1</option><option>🇺🇾 +598</option></select>
-          <div class="iw" style="flex:1"><input type="tel" id="fTelB" placeholder="11 2345-6789"></div>
-        </div>
-        <div class="hint">Te avisamos cuando el cambio esté confirmado.</div>
-      </div>
-
-      <div class="tog-row" id="togAse" onclick="togTC('ase')">
-        <div class="tog" id="togAseEl"></div>
-        <div class="tog-lbl">
-          <strong>Autorizo el cambio de asesor</strong>
-          Este trámite vincula mi cuenta a Inversiones Andinas como agente asesor, sin costo. Acepto los <a href="https://inversionesandinas.com/terminos-y-condiciones-de-inversiones-andinas/" target="_blank" class="tc-link" onclick="event.stopPropagation()">Términos y Condiciones</a> y la <a href="https://inversionesandinas.com/politica-y-privacidad-de-inversiones-andinas/" target="_blank" class="tc-link" onclick="event.stopPropagation()">Política de Privacidad</a>.
-        </div>
-      </div>
-    </div><!-- /brokerFields -->
-  </div>
-
-  <!-- B — TRANSITION SCREEN -->
-  <div class="ok" id="okB">
-    <div class="ok-inner">
-      <div class="ok-check-wrap">
-        <svg class="ok-check-svg" viewBox="0 0 40 40">
-          <polyline class="ok-check-path" points="8,21 17,30 33,13"/>
-        </svg>
-      </div>
-      <h2 class="ok-title">¡Bienvenido a IA!</h2>
-      <p class="ok-sub">Procesamos tu solicitud de vinculación. Un asesor te escribe pronto por WhatsApp.</p>
-      <div class="ok-progress-wrap">
-        <div class="ok-progress-label">
-          <span class="ok-progress-txt">Confirmando solicitud</span>
-          <span class="ok-progress-secs" id="cdNumB">5</span>
-        </div>
-        <div class="ok-bar-track">
-          <div class="ok-bar-fill" id="cdBarB"></div>
-        </div>
-      </div>
-      <div class="ok-spinner-wrap" id="okBSpinner">
-        <div class="ok-spinner"></div>
-        <div class="ok-spinner-txt">Finalizando…</div>
-      </div>
-    </div>
-  </div>
+</div>
 
 </div><!-- /shell -->
 
-<!-- BOTTOM CTA (hidden on scene 0) -->
 <div class="cta" id="cta" style="display:none">
   <button class="btn" id="mainBtn" onclick="next()" disabled>
-    <span id="btnTxt">Continuar</span>
-    <span class="arr">→</span>
+    <span id="btnTxt">Continuar</span><span class="arr">→</span>
   </button>
   <button class="btn-back" id="backBtn" onclick="back()" style="display:none">← Volver</button>
 </div>
 
 <script>
-  // ── GOOGLE CLIENT ID ─────────────────────────────────
-  // Reemplazá con tu Client ID de Google Cloud Console
-  const GOOGLE_CLIENT_ID = 'TU_CLIENT_ID.apps.googleusercontent.com';
-  // ─────────────────────────────────────────────────────
+// ── CONFIG ────────────────────────────────────────────────────────
+const GOOGLE_CLIENT_ID = 'TU_CLIENT_ID.apps.googleusercontent.com';
+const SECS = 5;
+const REDIRECT_VINCULAR = 'https://inversionesandinas.com/';
 
-  // ── REDIRECT CONFIG ──────────────────────────────────
-  // BASE_URL: la URL raíz donde está deployado este onboarding
-  const BASE_URL = window.location.origin;
-  // Las URLs se construyen dinámicamente con los datos del usuario
-  const REDIRECT_URL_VINCULAR = BASE_URL + '/empezar'; // Flujo B: no va a Balanz
-  const REDIRECT_SECS = 5;
-  // ─────────────────────────────────────────────────────
+// URLs por broker × tipo
+const BROKER_URLS = {
+  balanz: {
+    persona:      'https://www.balanz.com/abrir-cuenta-2.aspx?reference=contacto@inversionesandinas.com',
+    empresa:      'https://www.balanz.com/abrir-cuenta-juridica.aspx?reference=contacto@inversionesandinas.com',
+    internacional:'https://www.balanz.com/abrir-cuenta-2.aspx?reference=contacto@inversionesandinas.com'
+  },
+  iol: {
+    persona:      'https://micuenta.invertironline.com/registrarme?codigoAsesor=INVERSIONES.ANDINAS',
+    empresa:      'https://micuenta.invertironline.com/registrarme?codigoAsesor=INVERSIONES.ANDINAS',
+    internacional:'https://micuenta.invertironline.com/registrarme?codigoAsesor=INVERSIONES.ANDINAS'
+  },
+  bmb: {
+    persona:      'https://www.bullmarketbrokers.com/Apertura/BullMarketBrokers?ID=MTE3NDUy',
+    empresa:      'https://www.bullmarketbrokers.com/Apertura/BullMarketBrokers?ID=MTE3NDUy',
+    internacional:'https://www.bullmarketbrokers.com/Apertura/BullMarketBrokers?ID=MTE3NDUy'
+  },
+  inviu: {
+    persona:      'https://inversor.inviu.com.ar/register',
+    empresa:      'https://inversor.inviu.com.ar/register',
+    internacional:'https://onboarding.inviu.com.ar/'
+  },
+  ppi: {
+    persona:      'https://cuenta.portfoliopersonal.com/abrirCuenta?productor=TFE6NVFpZGVmW1E2RHg1QD82QFFpRUNGNltRO0ZDOjU6NDJRa',
+    empresa:      'https://cuenta.portfoliopersonal.com/abrirCuenta?productor=TFE6NVFpZGVmW1E2RHg1QD82QFFpRUNGNltRO0ZDOjU6NDJRa',
+    internacional:'https://cuenta.portfoliopersonal.com/abrirCuenta?productor=TFE6NVFpZGVmW1E2RHg1QD82QFFpRUNGNltRO0ZDOjU6NDJRa'
+  }
+};
 
-  // State
-  let flow = null;   // 'nueva' | 'vincular'
-  let step = 0;
+const BROKER_NAMES = {balanz:'Balanz',iol:'IOL',bmb:'Bull Market',inviu:'Inviu',ppi:'PPI'};
 
-  // Google user state per flow
-  const gUser = { A: null, B: null };
+// ── STATE ─────────────────────────────────────────────────────────
+let flow = null, step = 0;
+let tipo = 'persona';
+let broker = 'balanz';
+const gData = { A: null, B: null };
+const tcState = { alt: false, ase: false };
+const flows = { nueva: ['sA1','sA2','sA3'], vincular: ['sB1'] };
+const success = { nueva: 'okA', vincular: 'okB' };
 
-  const flows = {
-    nueva:    ['sA1','sA2'],
-    vincular: ['sB1']
-  };
-  const successes = { nueva: 'okA', vincular: 'okB' };
+// ── VALIDATION ────────────────────────────────────────────────────
+const RULES = {
+  nombre:    { min:2, max:40, pattern:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$/, msg:'Solo letras, mínimo 2 caracteres.' },
+  apellido:  { min:2, max:40, pattern:/^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s'-]+$/, msg:'Solo letras, mínimo 2 caracteres.' },
+  email:     { min:5, max:100, pattern:/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/, msg:'Ingresá un email válido (ej: juan@gmail.com).' },
+  tel:       { min:6, max:15, pattern:/^[0-9\s\-\(\)]+$/, msg:'Solo números, entre 6 y 15 dígitos.' },
+  comitente: { min:4, max:10, pattern:/^[0-9]+$/, msg:'Solo números, entre 4 y 10 dígitos.' }
+};
 
-  // ── GOOGLE IDENTITY SERVICES ──────────────────────────
-  window.onGoogleLibraryLoad = function() {
-    if (typeof google === 'undefined') return;
-    google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: handleGoogleCredential,
-      auto_select: false,
-      cancel_on_tap_outside: true
+function validateField(input, type, isBlur) {
+  const rule = RULES[type];
+  if (!rule) return true;
+  const val = input.value.trim();
+  const iconEl = document.getElementById(input.id + '-icon');
+  const msgEl  = document.getElementById(input.id + '-msg');
+  if (!val) {
+    setFieldState(input, iconEl, msgEl, 'neutral');
+    return false;
+  }
+  const ok = val.length >= rule.min && val.length <= rule.max && rule.pattern.test(val);
+  if (ok) {
+    setFieldState(input, iconEl, msgEl, 'ok');
+  } else if (isBlur || val.length >= rule.min) {
+    setFieldState(input, iconEl, msgEl, 'error', rule.msg);
+  }
+  return ok;
+}
+
+function setFieldState(input, iconEl, msgEl, state, msg) {
+  input.classList.remove('valid','error');
+  if (iconEl) { iconEl.classList.remove('show'); iconEl.textContent=''; }
+  if (msgEl)  { msgEl.classList.remove('show','ok','err'); msgEl.textContent=''; }
+  if (state === 'ok') {
+    input.classList.add('valid');
+    if (iconEl) { iconEl.textContent='✓'; iconEl.style.color='var(--green-mid)'; iconEl.classList.add('show'); }
+  } else if (state === 'error') {
+    input.classList.add('error');
+    if (iconEl) { iconEl.textContent='!'; iconEl.style.color='var(--red)'; iconEl.classList.add('show'); }
+    if (msgEl && msg) { msgEl.textContent=msg; msgEl.classList.add('show','err'); }
+  }
+}
+
+function validateFlowA() {
+  const errors = [];
+  const useGoogle = !!gData['A'];
+  if (!useGoogle) {
+    if (!validateField(document.getElementById('aNombre'),'nombre',true)) errors.push('Nombre');
+    if (!validateField(document.getElementById('aApellido'),'apellido',true)) errors.push('Apellido');
+    if (!validateField(document.getElementById('aEmail'),'email',true)) errors.push('Email');
+  }
+  if (!validateField(document.getElementById('aTel'),'tel',true)) errors.push('WhatsApp');
+  if (!tcState.alt) errors.push('Términos y Condiciones');
+  const sum = document.getElementById('errSummaryA');
+  const txt = document.getElementById('errSummaryTxtA');
+  if (errors.length) {
+    txt.textContent = 'Revisá: ' + errors.join(', ') + '.';
+    sum.classList.add('show');
+    return false;
+  }
+  sum.classList.remove('show');
+  return true;
+}
+
+function validateFlowB() {
+  const errors = [];
+  if (!validateField(document.getElementById('bComitente'),'comitente',true)) errors.push('Número de comitente');
+  const useGoogle = !!gData['B'];
+  if (!useGoogle) {
+    if (!validateField(document.getElementById('bNombre'),'nombre',true)) errors.push('Nombre');
+    if (!validateField(document.getElementById('bApellido'),'apellido',true)) errors.push('Apellido');
+    if (!validateField(document.getElementById('bEmail'),'email',true)) errors.push('Email');
+  }
+  if (!validateField(document.getElementById('bTel'),'tel',true)) errors.push('WhatsApp');
+  if (!tcState.ase) errors.push('Términos y Condiciones');
+  const sum = document.getElementById('errSummaryB');
+  const txt = document.getElementById('errSummaryTxtB');
+  if (errors.length) {
+    txt.textContent = 'Revisá: ' + errors.join(', ') + '.';
+    sum.classList.add('show');
+    return false;
+  }
+  sum.classList.remove('show');
+  return true;
+}
+
+// ── BROKER SELECTION (flujo A) ────────────────────────────────────
+function selectBroker(card) {
+  document.querySelectorAll('.broker-card').forEach(c => c.classList.remove('sel'));
+  card.classList.add('sel');
+  broker = card.dataset.broker;
+  const hint = document.getElementById('brokerHint');
+  const name = document.getElementById('brokerHintName');
+  name.textContent = BROKER_NAMES[broker] || broker;
+  hint.classList.add('show');
+  updateCtaState();
+}
+
+function setTipo(t) {
+  tipo = t;
+}
+
+// ── BROKER VINCULACIÓN (flujo B) ──────────────────────────────────
+function onBrokerVincular(sel) {
+  const v = sel.value;
+  if (['Inviu','PPI','Otro'].includes(v)) {
+    document.getElementById('brokerVinFields').style.display='none';
+    document.getElementById('cta').style.display='none';
+    document.getElementById('blockedState').style.display='block';
+    document.getElementById('blockedSpinner').style.display='flex';
+    ['msgInviu','msgPPI','msgOtro'].forEach(id=>document.getElementById(id).style.display='none');
+    setTimeout(()=>{
+      document.getElementById('blockedSpinner').style.display='none';
+      if(v==='Inviu') document.getElementById('msgInviu').style.display='block';
+      if(v==='PPI')   document.getElementById('msgPPI').style.display='block';
+      if(v==='Otro')  document.getElementById('msgOtro').style.display='block';
+    },1800);
+  } else {
+    document.getElementById('blockedState').style.display='none';
+    document.getElementById('brokerVinFields').style.display='block';
+    document.getElementById('cta').style.display='block';
+  }
+}
+
+function resetBroker() {
+  document.getElementById('brokerSel').value='';
+  ['msgInviu','msgPPI','msgOtro'].forEach(id=>document.getElementById(id).style.display='none');
+  document.getElementById('blockedState').style.display='none';
+  document.getElementById('brokerVinFields').style.display='block';
+  document.getElementById('cta').style.display='block';
+}
+
+// ── GOOGLE ────────────────────────────────────────────────────────
+window.onGoogleLibraryLoad = () => {
+  if (typeof google === 'undefined') return;
+  google.accounts.id.initialize({ client_id:GOOGLE_CLIENT_ID, callback:onGoogleCred, auto_select:false, cancel_on_tap_outside:true });
+};
+let pendingFlow = null;
+function triggerGoogle(f) {
+  pendingFlow = f;
+  if (typeof google !== 'undefined' && google.accounts) {
+    google.accounts.id.prompt(n => { if(n.isNotDisplayed()||n.isSkippedMoment()) fallbackOAuth(f); });
+  } else {
+    applyGoogle(f,{name:'María García',given_name:'María',family_name:'García',email:'maria@gmail.com',picture:null});
+  }
+}
+function fallbackOAuth(f) {
+  const uri=encodeURIComponent(location.href.split('?')[0]);
+  location.href=`https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${uri}&response_type=token&scope=${encodeURIComponent('openid email profile')}&state=flow${f}`;
+}
+function onGoogleCred(resp) {
+  const p=JSON.parse(atob(resp.credential.split('.')[1]));
+  applyGoogle(pendingFlow,{name:p.name,given_name:p.given_name,family_name:p.family_name,email:p.email,picture:p.picture});
+}
+(function(){
+  const h=location.hash;
+  if(!h.includes('access_token')) return;
+  const p=new URLSearchParams(h.slice(1));
+  const tok=p.get('access_token'),st=p.get('state');
+  if(!tok) return;
+  history.replaceState(null,'',location.pathname);
+  fetch('https://www.googleapis.com/oauth2/v3/userinfo',{headers:{Authorization:`Bearer ${tok}`}})
+    .then(r=>r.json()).then(u=>{
+      const f=st==='flowB'?'B':'A';
+      applyGoogle(f,{name:u.name,given_name:u.given_name,family_name:u.family_name,email:u.email,picture:u.picture});
+      if(f==='B') startFlow('vincular'); else {startFlow('nueva');next();next();}
     });
-  };
-
-  // Qué flow está esperando el login
-  let pendingLoginFlow = null;
-
-  function triggerGoogleLogin(flowId) {
-    pendingLoginFlow = flowId;
-
-    // Si la lib de Google está lista, mostramos el popup
-    if (typeof google !== 'undefined' && google.accounts) {
-      google.accounts.id.prompt((notification) => {
-        if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-          // One Tap no disponible (popup bloqueado, etc.) → fallback a OAuth redirect
-          const redirectUri = encodeURIComponent(window.location.href.split('?')[0]);
-          const scope = encodeURIComponent('openid email profile');
-          const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${GOOGLE_CLIENT_ID}&redirect_uri=${redirectUri}&response_type=token&scope=${scope}&state=flow${flowId}`;
-          window.location.href = url;
-        }
-      });
-    } else {
-      // Google lib no cargó (ej: preview en archivo local) → simulación de demo
-      simulateGoogleLogin(flowId);
-    }
-  }
-
-  function handleGoogleCredential(response) {
-    // Decodificamos el JWT del id_token (payload entre los dos puntos)
-    const payload = JSON.parse(atob(response.credential.split('.')[1]));
-    const userData = {
-      name:      payload.name,
-      given_name:  payload.given_name,
-      family_name: payload.family_name,
-      email:     payload.email,
-      picture:   payload.picture
-    };
-    applyGoogleUser(pendingLoginFlow, userData);
-  }
-
-  // ── HANDLE OAUTH REDIRECT (token en URL hash) ─────────
-  (function handleOAuthRedirect() {
-    const hash = window.location.hash;
-    if (!hash.includes('access_token')) return;
-    const params = new URLSearchParams(hash.substring(1));
-    const token = params.get('access_token');
-    const state = params.get('state'); // 'flowA' o 'flowB'
-    if (!token) return;
-    // Limpiar hash
-    history.replaceState(null, '', window.location.pathname + window.location.search);
-    // Obtener info del usuario con el access token
-    fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-      headers: { Authorization: `Bearer ${token}` }
-    })
-    .then(r => r.json())
-    .then(user => {
-      const flowId = state === 'flowB' ? 'B' : 'A';
-      applyGoogleUser(flowId, {
-        name: user.name,
-        given_name: user.given_name,
-        family_name: user.family_name,
-        email: user.email,
-        picture: user.picture
-      });
-      // Restaurar el flujo correcto
-      if (flowId === 'B') startFlow('vincular');
-      else { startFlow('nueva'); next(); } // ir directo a sA2
-    })
-    .catch(() => { /* silencioso */ });
-  })();
-
-  // ── APLICAR DATOS DE GOOGLE AL FORMULARIO ─────────────
-  function applyGoogleUser(flowId, userData) {
-    gUser[flowId] = userData;
-
-    // Ocultar bloque de login, mostrar badge verificado
-    document.getElementById(`gLoginBlockA${flowId === 'A' ? '' : ''}`); // handled below
-    document.getElementById('gLoginBlock' + flowId).style.display = 'none';
-    document.getElementById('orDivider'  + flowId).style.display = 'none';
-
-    // Ocultar campos de nombre/apellido/email (ya los tenemos de Google)
-    document.getElementById('manualFields' + flowId).style.display = 'none';
-
-    // Mostrar fila verificada
-    const row = document.getElementById('verifiedRow' + flowId);
-    row.classList.add('show');
-
-    // Nombre y email en la fila
-    document.getElementById('vName'  + flowId).textContent = userData.name || userData.given_name + ' ' + userData.family_name;
-    document.getElementById('vEmail' + flowId).textContent = userData.email;
-
-    // Avatar
-    const avatarEl = document.getElementById('vAvatar' + flowId);
-    if (userData.picture) {
-      avatarEl.innerHTML = `<img src="${userData.picture}" alt="avatar">`;
-    }
-
-    // Pre-llenar campos ocultos por si el backend los necesita
-    if (flowId === 'A') {
-      document.getElementById('fNombreA').value   = userData.given_name  || '';
-      document.getElementById('fApellidoA').value = userData.family_name || '';
-      document.getElementById('fEmailA').value    = userData.email       || '';
-    } else {
-      document.getElementById('fNombreB').value   = userData.given_name  || '';
-      document.getElementById('fApellidoB').value = userData.family_name || '';
-      document.getElementById('fEmailB').value    = userData.email       || '';
-    }
-
-    // El usuario ya verificó con Google → habilitar el botón si T&C está OK
-    updateCtaState();
-  }
-
-  function clearGoogleLogin(flowId) {
-    gUser[flowId] = null;
-    document.getElementById('gLoginBlock' + flowId).style.display = 'flex';
-    document.getElementById('orDivider'   + flowId).style.display = 'flex';
-    document.getElementById('manualFields'+ flowId).style.display = 'block';
-    document.getElementById('verifiedRow' + flowId).classList.remove('show');
-    // Limpiar campos
-    const suffix = flowId;
-    document.getElementById('fNombre'  + suffix).value = '';
-    document.getElementById('fApellido'+ suffix).value = '';
-    document.getElementById('fEmail'   + suffix).value = '';
-    updateCtaState();
-  }
-
-  // ── DEMO / SIMULACIÓN (para preview sin Google Cloud) ──
-  function simulateGoogleLogin(flowId) {
-    const demoUser = {
-      name: 'Martín García',
-      given_name: 'Martín',
-      family_name: 'García',
-      email: 'martin.garcia@gmail.com',
-      picture: null
-    };
-    setTimeout(() => applyGoogleUser(flowId, demoUser), 600);
-  }
-
-  // ── FLOW NAVIGATION ───────────────────────────────────
-  function show(id) {
-    document.querySelectorAll('.scene, .ok').forEach(el => { el.classList.remove('active','show'); });
-    const el = document.getElementById(id);
-    if(!el) return;
-    if(el.classList.contains('ok')) {
-      el.classList.add('show');
-      if(el.id === 'okA') startCountdown('cdNumA', 'cdBarA', buildRedirectUrlBalanz(), 'okASpinner');
-      if(el.id === 'okB') startCountdown('cdNumB', 'cdBarB', REDIRECT_URL_VINCULAR, 'okBSpinner');
-    }
-    else el.classList.add('active');
-    window.scrollTo({top:0,behavior:'smooth'});
-  }
-
-  function startFlow(f) {
-    flow = f; step = 0;
-    tcState.alt = false; tcState.ase = false;
-    if(document.getElementById('togAltEl')) document.getElementById('togAltEl').classList.remove('on');
-    if(document.getElementById('togAseEl')) document.getElementById('togAseEl').classList.remove('on');
-    show(flows[f][0]);
-    document.getElementById('cta').style.display = 'block';
-    updateCta();
-  }
-
-  function next() {
-    const scenes = flows[flow];
-    if(step < scenes.length - 1) {
-      step++;
-      show(scenes[step]);
-      updateCta();
-    } else {
-      show(successes[flow]);
-      document.getElementById('cta').style.display = 'none';
-    }
-  }
-
-  function back() {
-    if(step > 0) {
-      step--;
-      show(flows[flow][step]);
-      updateCta();
-    } else {
-      flow = null; step = 0;
-      show('s0');
-      document.getElementById('cta').style.display = 'none';
-    }
-  }
-
-  function updateCta() {
-    updateCtaState();
-    const scenes = flows[flow];
-    const isLast = step === scenes.length - 1;
-    document.getElementById('btnTxt').textContent = isLast ? 'Confirmar' : 'Continuar';
-    document.getElementById('backBtn').style.display = 'block';
-  }
-
-  // T&C state
-  const tcState = { alt: false, ase: false };
-
-  function togTC(which) {
-    tcState[which] = !tcState[which];
-    const el = document.getElementById('tog' + (which==='alt' ? 'AltEl' : 'AseEl'));
-    el.classList.toggle('on', tcState[which]);
-    updateCtaState();
-  }
-
-  function updateCtaState() {
-    const btn = document.getElementById('mainBtn');
-    if (!btn) return;
-    const scenes = flow ? flows[flow] : null;
-    const isLast = scenes && step === scenes.length - 1;
-    if (!isLast) { btn.disabled = false; return; }
-    if (flow === 'nueva')    btn.disabled = !tcState.alt;
-    if (flow === 'vincular') btn.disabled = !tcState.ase;
-  }
-
-  function onBrokerChange(sel) {
-    const v = sel.value;
-    if (v === 'Inviu' || v === 'PPI' || v === 'Otro') {
-      document.getElementById('brokerFields').style.display = 'none';
-      document.getElementById('cta').style.display = 'none';
-      const bs = document.getElementById('blockedState');
-      bs.style.display = 'block';
-      document.getElementById('blockedSpinner').style.display = 'flex';
-      document.getElementById('msgInviu').style.display = 'none';
-      document.getElementById('msgPPI').style.display   = 'none';
-      document.getElementById('msgOtro').style.display  = 'none';
-      setTimeout(() => {
-        document.getElementById('blockedSpinner').style.display = 'none';
-        if (v === 'Inviu') document.getElementById('msgInviu').style.display = 'block';
-        if (v === 'PPI')   document.getElementById('msgPPI').style.display   = 'block';
-        if (v === 'Otro')  document.getElementById('msgOtro').style.display  = 'block';
-      }, 1800);
-    } else {
-      document.getElementById('blockedState').style.display = 'none';
-      document.getElementById('brokerFields').style.display = 'block';
-      document.getElementById('cta').style.display = 'block';
-    }
-  }
-
-  function resetBroker() {
-    document.getElementById('brokerSelect').value = '';
-    document.getElementById('msgOtro').style.display = 'none';
-    document.getElementById('blockedState').style.display = 'none';
-    document.getElementById('brokerFields').style.display = 'block';
-    document.getElementById('cta').style.display = 'block';
-  }
-
-  function startCountdown(numId, barId, url, spinnerId) {
-    let secs = REDIRECT_SECS;
-    const numEl = document.getElementById(numId);
-    const barEl = document.getElementById(barId);
-    const spinnerEl = spinnerId ? document.getElementById(spinnerId) : null;
-    if (!numEl || !barEl) return;
-    // Barra se vacía en REDIRECT_SECS segundos
-    barEl.style.transition = `width ${REDIRECT_SECS}s linear`;
-    requestAnimationFrame(() => { barEl.style.width = '0%'; });
-    const interval = setInterval(() => {
-      secs--;
-      if (numEl) numEl.textContent = secs;
-      if (secs <= 0) {
-        clearInterval(interval);
-        // Mostrar spinner mientras navega
-        if (spinnerEl) spinnerEl.classList.add('show');
-        if (numEl) numEl.textContent = '0';
-        setTimeout(() => {
-          if (url) window.location.href = url;
-        }, 600);
-      }
-    }, 1000);
-  }
-
-  function buildRedirectUrlBalanz() {
-    // Tomar los datos del usuario del formulario
-    const nombre   = document.getElementById('fNombreA')?.value   || '';
-    const apellido = document.getElementById('fApellidoA')?.value || '';
-    const email    = document.getElementById('fEmailA')?.value    || '';
-    const tel      = document.getElementById('fTelA')?.value      || '';
-    const base     = window.location.origin + '/redirect-balanz';
-    const params   = new URLSearchParams({ nombre, apellido, email, tel });
-    return `${base}?${params.toString()}`;
-  }
-
-  function sel(el) {
-    el.closest('.card-set').querySelectorAll('.c-card').forEach(c => c.classList.remove('sel'));
-    el.classList.add('sel');
-  }
-
-  function togSwitch(row) { row.querySelector('.tog').classList.toggle('on'); }
-
-  const via = new URLSearchParams(location.search).get('via');
-  if(via === 'asesor') startFlow('vincular');
-</script>
-
-<script>
-(function() {
-  var IA_PAGES = {
-    'https://inversionesandinas.com/': 'ia-home.html',
-    'https://inversionesandinas.com/plan-black/': 'ia-plan-black.html',
-    'https://inversionesandinas.com/sumate/': 'ia-sumate.html',
-    'https://inversionesandinas.com/empresas/': 'ia-empresas.html',
-    'https://inversionesandinas.com/ia-internacional/': 'ia-internacional.html',
-    'https://inversionesandinas.com/blog/': 'ia-blog.html',
-    'https://inversionesandinas.com/empezar/': 'ia-empezar.html',
-    'https://inversionesandinas.com/empezar/?via=asesor': 'ia-empezar.html',
-  };
-  document.addEventListener('click', function(e) {
-    var a = e.target.closest('a');
-    if (!a) return;
-    var href = a.getAttribute('href');
-    if (!href) return;
-    if (a.target === '_blank' || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:') || href.startsWith('https://wa.me')) return;
-    var local = IA_PAGES[href] || IA_PAGES[href.split('?')[0] + '/'] || IA_PAGES[href.split('?')[0]];
-    if (local) { e.preventDefault(); window.location.href = local; }
-  });
 })();
-</script>
 
+function applyGoogle(f,u) {
+  gData[f]=u;
+  document.getElementById('gBlock'+f).style.display='none';
+  const orEl=document.getElementById('or'+f); if(orEl) orEl.style.display='none';
+  document.getElementById('manual'+f).style.display='none';
+  const row=document.getElementById('vRow'+f); row.classList.add('show');
+  document.getElementById('vName'+f).textContent=u.name||(u.given_name+' '+u.family_name);
+  document.getElementById('vEmail'+f).textContent=u.email;
+  const av=document.getElementById('vAv'+f);
+  if(u.picture) av.innerHTML=`<img src="${u.picture}" alt="">`;
+  const suffix=f==='A'?'a':'b';
+  ['Nombre','Apellido','Email'].forEach(field=>{
+    const el=document.getElementById(suffix+field);
+    if(el) el.value=field==='Nombre'?u.given_name:field==='Apellido'?u.family_name:u.email;
+  });
+  updateCtaState();
+}
+function clearGoogle(f) {
+  gData[f]=null;
+  document.getElementById('gBlock'+f).style.display='flex';
+  document.getElementById('manual'+f).style.display='block';
+  const orEl=document.getElementById('or'+f); if(orEl) orEl.style.display='flex';
+  document.getElementById('vRow'+f).classList.remove('show');
+  updateCtaState();
+}
+
+// ── NAVIGATION ────────────────────────────────────────────────────
+function show(id) {
+  document.querySelectorAll('.scene,.ok').forEach(el=>el.classList.remove('active','show'));
+  const el=document.getElementById(id);
+  if(!el) return;
+  if(el.classList.contains('ok')) {
+    el.classList.add('show');
+    document.getElementById('cta').style.display='none';
+    startCountdown(id);
+  } else { el.classList.add('active'); }
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+function startFlow(f) {
+  flow=f; step=0;
+  tcState.alt=false; tcState.ase=false;
+  ['togAltEl','togAseEl'].forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.remove('on'); });
+  show(flows[f][0]);
+  document.getElementById('cta').style.display='block';
+  updateCta();
+}
+function next() {
+  // Validar último paso antes de enviar
+  if (flow==='nueva' && step===flows['nueva'].length-1) {
+    if (!validateFlowA()) { document.getElementById('errSummaryA').scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  }
+  if (flow==='vincular' && step===flows['vincular'].length-1) {
+    if (!validateFlowB()) { document.getElementById('errSummaryB').scrollIntoView({behavior:'smooth',block:'center'}); return; }
+  }
+  const scenes=flows[flow];
+  if(step<scenes.length-1){step++;show(scenes[step]);updateCta();}
+  else{
+    // Actualizar nombre del broker en pantalla de éxito
+    if(flow==='nueva'){
+      const bn=BROKER_NAMES[broker]||'el broker';
+      document.getElementById('okBrokerName').textContent=bn;
+      document.getElementById('okBrokerName2').textContent=bn;
+    }
+    show(success[flow]);
+  }
+}
+function back() {
+  if(step>0){step--;show(flows[flow][step]);updateCta();}
+  else{flow=null;step=0;show('s0');document.getElementById('cta').style.display='none';}
+}
+function updateCta() {
+  updateCtaState();
+  const isLast=step===flows[flow].length-1;
+  document.getElementById('btnTxt').textContent=isLast?'Confirmar':'Continuar';
+  document.getElementById('backBtn').style.display='block';
+}
+function updateCtaState() {
+  const btn=document.getElementById('mainBtn');
+  if(!btn||!flow) return;
+  const isLast=step===flows[flow].length-1;
+  if(!isLast){btn.disabled=false;return;}
+  // En último paso: habilitar siempre (validación al click)
+  btn.disabled=false;
+}
+
+// ── T&C ───────────────────────────────────────────────────────────
+function togTC(w) {
+  tcState[w]=!tcState[w];
+  document.getElementById('tog'+(w==='alt'?'AltEl':'AseEl')).classList.toggle('on',tcState[w]);
+}
+
+// ── COUNTDOWN ─────────────────────────────────────────────────────
+function startCountdown(okId) {
+  const isA=okId==='okA';
+  const secsEl=document.getElementById(isA?'secsA':'secsB');
+  const fillEl=document.getElementById(isA?'fillA':'fillB');
+  const spinEl=document.getElementById(isA?'spinA':'spinB');
+  let rem=SECS;
+  fillEl.style.transition=`width ${SECS}s linear`;
+  requestAnimationFrame(()=>{fillEl.style.width='0%';});
+  const t=setInterval(()=>{
+    rem--;
+    secsEl.textContent=rem;
+    if(rem<=0){
+      clearInterval(t);
+      spinEl.classList.add('show');
+      setTimeout(()=>{
+        if(isA){
+          const url=(BROKER_URLS[broker]||BROKER_URLS.balanz)[tipo]||BROKER_URLS.balanz.persona;
+          window.open(url,'_blank');
+        } else {
+          window.location.href=REDIRECT_VINCULAR;
+        }
+      },600);
+    }
+  },1000);
+}
+
+// ── MISC ──────────────────────────────────────────────────────────
+function sel(el){
+  el.closest('.card-set').querySelectorAll('.c-card').forEach(c=>c.classList.remove('sel'));
+  el.classList.add('sel');
+}
+if(new URLSearchParams(location.search).get('via')==='asesor') startFlow('vincular');
+</script>
 </body>
 </html>
