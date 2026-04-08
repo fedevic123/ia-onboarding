@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Abriendo tu cuenta en Balanz — Inversiones Andinas</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --blue:        #073AAB;
+    --blue-dark:   #05297A;
+    --blue-bright: #2465F6;
+    --green:       #21E2AB;
+    --green-mid:   #18B488;
+    --green-dark:  #128766;
+    --grey:        #8C8C8C;
+    --dark:        #262626;
+    --f-title: 'Poppins', sans-serif;
+    --f-body:  'Roboto', sans-serif;
+  }
+  *, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+  html, body { height:100%; font-family:var(--f-body); background:#f0f2f8; -webkit-font-smoothing:antialiased; }
+
+  /* ── LAYOUT ── */
+  .layout {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    max-width: 100%;
+  }
+
+  /* ── TOPBAR ── */
+  .topbar {
+    background: #fff;
+    border-bottom: 1px solid rgba(7,58,171,.08);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-shrink: 0;
+    z-index: 100;
+    box-shadow: 0 2px 12px rgba(7,58,171,.06);
+  }
+  .topbar-left { display: flex; align-items: center; gap: 14px; }
+  .logo { height: 26px; }
+  .sep { width: 1px; height: 22px; background: rgba(7,58,171,.12); }
+  .broker-label {
+    font-family: var(--f-title); font-size: 11px; font-weight: 600;
+    color: var(--grey); letter-spacing: .1em; text-transform: uppercase;
+  }
+  .broker-name {
+    font-family: var(--f-title); font-size: 13px; font-weight: 700;
+    color: var(--blue);
+  }
+
+  /* ── BANNER DE AYUDA ── */
+  .banner {
+    background: linear-gradient(135deg, var(--blue) 0%, var(--blue-bright) 100%);
+    padding: 10px 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+  }
+  .banner::before {
+    content: '';
+    position: absolute; inset: 0;
+    background: url("data:image/svg+xml,%3Csvg width='40' height='40' viewBox='0 0 40 40' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='20' cy='20' r='12'/%3E%3C/g%3E%3C/svg%3E") repeat;
+  }
+  .banner-left { display: flex; align-items: center; gap: 10px; position: relative; }
+  .banner-icon {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255,255,255,.15);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 14px; flex-shrink: 0;
+  }
+  .banner-text { position: relative; }
+  .banner-title {
+    font-family: var(--f-title); font-size: 12px; font-weight: 600;
+    color: #fff; line-height: 1.2;
+  }
+  .banner-sub { font-size: 11px; color: rgba(255,255,255,.75); margin-top: 1px; }
+
+  /* ── PILL DE DATOS ── */
+  .data-pills {
+    display: flex; gap: 6px; flex-wrap: wrap;
+    position: relative;
+  }
+  .pill {
+    display: flex; align-items: center; gap: 5px;
+    background: rgba(255,255,255,.15);
+    border: 1px solid rgba(255,255,255,.25);
+    border-radius: 50px; padding: 4px 10px;
+    font-size: 11px; color: #fff; font-family: var(--f-title);
+    font-weight: 500; white-space: nowrap;
+    backdrop-filter: blur(4px);
+  }
+  .pill-check { color: var(--green); font-size: 10px; font-weight: 700; }
+
+  /* ── PROGRESS STEPS ── */
+  .steps-bar {
+    background: #fff;
+    border-bottom: 1px solid rgba(7,58,171,.07);
+    padding: 8px 20px;
+    display: flex;
+    align-items: center;
+    gap: 0;
+    flex-shrink: 0;
+  }
+  .step {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 10px; font-weight: 600; letter-spacing: .06em;
+    text-transform: uppercase; color: var(--grey);
+    font-family: var(--f-title);
+  }
+  .step.active { color: var(--blue); }
+  .step.done { color: var(--green-dark); }
+  .step-dot {
+    width: 20px; height: 20px; border-radius: 50%;
+    background: rgba(140,140,140,.12);
+    border: 1.5px solid rgba(140,140,140,.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 9px; font-weight: 700; color: var(--grey);
+    flex-shrink: 0; transition: all .3s;
+  }
+  .step.active .step-dot { background: var(--blue); border-color: var(--blue); color: #fff; box-shadow: 0 3px 10px rgba(7,58,171,.3); }
+  .step.done .step-dot { background: rgba(33,226,171,.15); border-color: var(--green-mid); color: var(--green-dark); }
+  .step-connector { flex: 1; height: 1px; background: rgba(7,58,171,.08); margin: 0 8px; }
+
+  /* ── IFRAME WRAPPER ── */
+  .iframe-wrap {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+  }
+  #balanz-frame {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  /* ── LOADING OVERLAY ── */
+  .loading-overlay {
+    position: absolute; inset: 0;
+    background: #fff;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    gap: 16px; z-index: 10;
+    transition: opacity .4s ease;
+  }
+  .loading-overlay.hidden { opacity: 0; pointer-events: none; }
+  .spinner {
+    width: 44px; height: 44px; border-radius: 50%;
+    border: 3px solid rgba(7,58,171,.1);
+    border-top-color: var(--blue);
+    animation: spin .8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .loading-title {
+    font-family: var(--f-title); font-size: 15px; font-weight: 600;
+    color: var(--blue); text-align: center;
+  }
+  .loading-sub { font-size: 12px; color: var(--grey); text-align: center; }
+
+  /* ── AUTOFILL TOAST ── */
+  .toast {
+    position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%) translateY(80px);
+    background: var(--blue-dark);
+    color: #fff; border-radius: 50px;
+    padding: 10px 20px;
+    display: flex; align-items: center; gap: 8px;
+    font-family: var(--f-title); font-size: 12px; font-weight: 600;
+    box-shadow: 0 8px 30px rgba(7,58,171,.35);
+    z-index: 999; transition: transform .4s cubic-bezier(.175,.885,.32,1.275);
+    white-space: nowrap;
+  }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .toast-icon { font-size: 14px; }
+
+  /* ── MOBILE: stack banner data pills ── */
+  @media (max-width: 600px) {
+    .data-pills { display: none; }
+    .banner { padding: 8px 14px; }
+    .topbar { padding: 8px 14px; }
+    .steps-bar { padding: 6px 14px; }
+    .broker-label { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="topbar-left">
+      <!-- Logo IA -->
+      <svg class="logo" viewBox="0 0 220 40" xmlns="http://www.w3.org/2000/svg">
+        <rect x="0" y="0" width="11" height="30" rx="5.5" fill="#05297A" transform="rotate(-45 15 15) translate(-2,-3)"/>
+        <rect x="0" y="0" width="11" height="30" rx="5.5" fill="#2465F6" transform="rotate(-45 15 15) translate(10,-3)"/>
+        <rect x="0" y="0" width="7"  height="18" rx="3.5" fill="#21E2AB" transform="rotate(-45 15 15) translate(17,9)"/>
+        <text x="52" y="16" font-family="Poppins,sans-serif" font-weight="700" font-size="10.5" fill="#073AAB" letter-spacing="0.5">INVERSIONES</text>
+        <text x="52" y="30" font-family="Poppins,sans-serif" font-weight="700" font-size="10.5" fill="#073AAB" letter-spacing="0.5">ANDINAS</text>
+      </svg>
+      <div class="sep"></div>
+      <div>
+        <div class="broker-label">Abriendo cuenta en</div>
+        <div class="broker-name">Balanz</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BANNER: datos pre-cargados -->
+  <div class="banner">
+    <div class="banner-left">
+      <div class="banner-icon">⚡</div>
+      <div class="banner-text">
+        <div class="banner-title">Tus datos ya están cargados</div>
+        <div class="banner-sub">Solo completá lo que falta y confirmá</div>
+      </div>
+    </div>
+    <div class="data-pills" id="dataPills">
+      <!-- Se completan dinámicamente -->
+    </div>
+  </div>
+
+  <!-- STEPS BAR -->
+  <div class="steps-bar">
+    <div class="step done" id="step1">
+      <div class="step-dot">✓</div>
+      Tu perfil
+    </div>
+    <div class="step-connector"></div>
+    <div class="step active" id="step2">
+      <div class="step-dot">2</div>
+      Apertura en Balanz
+    </div>
+    <div class="step-connector"></div>
+    <div class="step" id="step3">
+      <div class="step-dot">3</div>
+      ¡Listo!
+    </div>
+  </div>
+
+  <!-- IFRAME -->
+  <div class="iframe-wrap">
+    <div class="loading-overlay" id="loadingOverlay">
+      <div class="spinner"></div>
+      <div class="loading-title">Preparando tu formulario…</div>
+      <div class="loading-sub">Estamos pre-cargando tus datos en Balanz</div>
+    </div>
+    <iframe
+      id="balanz-frame"
+      src="https://www.balanz.com/abrir-cuenta-2.aspx?reference=contacto@inversionesandinas.com"
+      title="Apertura de cuenta Balanz"
+      allow="same-origin"
+    ></iframe>
+  </div>
+
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast">
+  <span class="toast-icon">✓</span>
+  <span id="toastMsg">Datos pre-cargados en el formulario</span>
+</div>
+
+<script>
+// ── LEER PARAMS DE URL ────────────────────────────────────────────
+const params  = new URLSearchParams(location.search);
+const nombre   = params.get('nombre')   || '';
+const apellido = params.get('apellido') || '';
+const email    = params.get('email')    || '';
+const telefono = params.get('tel')      || '';
+
+// ── PILLS DINÁMICAS ───────────────────────────────────────────────
+const pillsEl = document.getElementById('dataPills');
+const pillData = [
+  { label: nombre + ' ' + apellido, show: nombre || apellido },
+  { label: email,  show: email },
+  { label: telefono, show: telefono }
+].filter(p => p.show);
+
+pillData.forEach(p => {
+  const pill = document.createElement('div');
+  pill.className = 'pill';
+  pill.innerHTML = `<span class="pill-check">✓</span> ${p.label}`;
+  pillsEl.appendChild(pill);
+});
+
+// ── LÓGICA DE AUTO-FILL EN IFRAME ────────────────────────────────
+const frame = document.getElementById('balanz-frame');
+let filled = false;   // evitar doble ejecución
+let attempts = 0;
+
+function fillFrame() {
+  if (filled) return;
+  attempts++;
+  if (attempts > 30) return; // timeout ~15s
+
+  try {
+    const doc = frame.contentDocument;
+    const win = frame.contentWindow;
+    if (!doc || !win || !doc.body) return;
+
+    // Aceptar cookies si hay popup
+    const aceptar = Array.from(doc.querySelectorAll('button, a'))
+      .find(b => b.offsetParent !== null && b.textContent.trim() === 'ACEPTAR');
+    if (aceptar) aceptar.click();
+
+    // Util: set value con eventos para que jQuery lo detecte
+    const setter = Object.getOwnPropertyDescriptor(win.HTMLInputElement.prototype, 'value').set;
+    const fill = (el, val) => {
+      if (!el || !val) return false;
+      setter.call(el, val);
+      ['input', 'change', 'blur', 'keyup'].forEach(ev =>
+        el.dispatchEvent(new Event(ev, { bubbles: true }))
+      );
+      return true;
+    };
+
+    // ── PASO 1: solo pide Email ──────────────────────────────────
+    const visibleInputs = Array.from(doc.querySelectorAll('input'))
+      .filter(el => el.offsetParent !== null);
+
+    const step1Email = visibleInputs.find(i =>
+      i.type === 'email' && i.placeholder && i.placeholder.toLowerCase().includes('mail')
+    );
+
+    if (step1Email && !step1Email.value && email) {
+      fill(step1Email, email);
+
+      // Esperar un tick y clickear Continuar
+      setTimeout(() => {
+        try {
+          const btn = Array.from(frame.contentDocument.querySelectorAll('a'))
+            .find(b => b.offsetParent !== null && b.textContent.trim() === 'Continuar');
+          if (btn) btn.click();
+        } catch(e) {}
+      }, 400);
+      return; // esperamos que cargue el paso 2
+    }
+
+    // ── PASO 2: Nombre + Apellido + Email ───────────────────────
+    const vis2 = Array.from(doc.querySelectorAll('input'))
+      .filter(el => el.offsetParent !== null);
+
+    const fNombre   = vis2.find(i => i.placeholder === 'Nombre completo');
+    const fApellido = vis2.find(i => i.placeholder === 'Apellido completo');
+    const fEmail2   = vis2.find(i => i.type === 'email');
+
+    if (fNombre && fApellido) {
+      let ok = false;
+      ok = fill(fNombre,   nombre)   || ok;
+      ok = fill(fApellido, apellido) || ok;
+      if (fEmail2 && !fEmail2.value) fill(fEmail2, email);
+
+      if (ok) {
+        filled = true;
+        hideLoading();
+        showToast('✓  Nombre, apellido y email ya están cargados');
+      }
+    }
+
+  } catch (e) {
+    // cross-origin u otro error — silencioso
+  }
+}
+
+// Polling cada 500ms hasta que llene o timeout
+const pollInterval = setInterval(() => {
+  fillFrame();
+  if (filled) clearInterval(pollInterval);
+}, 500);
+
+// También en onload del iframe
+frame.addEventListener('load', () => {
+  filled = false; // reset si navega dentro del iframe
+  setTimeout(fillFrame, 600);
+});
+
+// ── OCULTAR LOADING ───────────────────────────────────────────────
+function hideLoading() {
+  const overlay = document.getElementById('loadingOverlay');
+  overlay.classList.add('hidden');
+  setTimeout(() => overlay.style.display = 'none', 500);
+}
+
+// Timeout máximo de loading: 6s aunque no llene
+setTimeout(hideLoading, 6000);
+
+// ── TOAST ─────────────────────────────────────────────────────────
+function showToast(msg) {
+  const toast = document.getElementById('toast');
+  document.getElementById('toastMsg').textContent = msg;
+  toast.classList.add('show');
+  setTimeout(() => toast.classList.remove('show'), 3500);
+}
+</script>
+
+</body>
+</html>
